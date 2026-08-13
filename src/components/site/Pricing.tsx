@@ -18,18 +18,12 @@ type Plan = {
 
 const plans: Plan[] = [
   {
-    name: "Starter",
+    name: "Free",
     tagline: "For your first page on the internet.",
     monthly: 0,
     yearly: 0,
     cta: "Start free",
-    features: [
-      "1 published portfolio",
-      "Folioforge subdomain",
-      "All core templates",
-      "1 GB storage",
-      "Folioforge badge",
-    ],
+    features: ["1 published portfolio", "Folioforge subdomain", "All core templates"],
   },
   {
     name: "Pro",
@@ -37,15 +31,15 @@ const plans: Plan[] = [
     monthly: 12,
     yearly: 9,
     cta: "Go Pro",
-    popular: true,
-    features: [
-      "Unlimited portfolios",
-      "Custom domain + SSL",
-      "AI Design Studio",
-      "Full analytics & heatmaps",
-      "Export to React / PDF",
-      "Priority support",
-    ],
+    features: ["Unlimited portfolios", "Custom domain + SSL", "AI Design Studio", "Full analytics & heatmaps"],
+  },
+  {
+    name: "Studio",
+    tagline: "For freelancers winning bigger briefs.",
+    monthly: 24,
+    yearly: 19,
+    cta: "Start Studio",
+    features: ["Everything in Pro", "Client proof links", "Brand kits & custom themes", "No Folioforge badge"],
   },
   {
     name: "Team",
@@ -53,13 +47,8 @@ const plans: Plan[] = [
     monthly: 39,
     yearly: 29,
     cta: "Contact sales",
-    features: [
-      "Everything in Pro",
-      "5 team seats included",
-      "Live co-editing",
-      "Brand kits & shared themes",
-      "SSO + audit logs",
-    ],
+    popular: true,
+    features: ["Everything in Studio", "5 team seats included", "Live co-editing", "SSO + audit logs"],
   },
 ];
 
@@ -70,14 +59,19 @@ export default function Pricing() {
     <section id="pricing" className="relative scroll-mt-24 py-24 sm:py-28">
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[360px] w-[640px] -translate-x-1/2 rounded-full bg-indigo-600/10 blur-[130px]"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,rgba(62,207,142,0.08),transparent_70%)]"
       />
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+      <div
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 top-1/2 size-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(62,207,142,0.06),transparent_65%)] blur-2xl"
+      />
+      <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Pricing"
           title={
             <>
-              Simple pricing, <span className="gradient-text">serious results</span>
+              Simple pricing, serious results
             </>
           }
           description="Start free, upgrade when your portfolio starts doing the talking. Prices in USD."
@@ -86,7 +80,7 @@ export default function Pricing() {
         {/* billing toggle */}
         <Reveal delay={0.1} className="mt-10 flex items-center justify-center gap-3">
           <span
-            className={`text-sm font-medium transition-colors ${!yearly ? "text-white" : "text-white/40"}`}
+            className={`text-sm font-medium transition-colors ${!yearly ? "text-ink" : "text-ink-mute-2"}`}
           >
             Monthly
           </span>
@@ -96,45 +90,51 @@ export default function Pricing() {
             aria-checked={yearly}
             aria-label="Toggle yearly billing"
             onClick={() => setYearly((v) => !v)}
-            className={`relative h-8 w-14 rounded-full border border-white/10 transition-colors duration-300 focus-visible:outline-2 focus-visible:outline-indigo-400 ${
-              yearly ? "bg-gradient-to-r from-indigo-500 to-purple-600" : "bg-white/10"
+            className={`relative h-7 w-12 rounded-full transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white ${
+              yearly ? "bg-primary" : "border border-hairline-strong bg-canvas-soft"
             }`}
           >
             <motion.span
               layout
               transition={{ type: "spring", stiffness: 500, damping: 32 }}
-              className={`absolute top-1 size-6 rounded-full bg-white shadow-lg ${yearly ? "left-7" : "left-1"}`}
+              className={`absolute top-0.5 size-6 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.4)] ${
+                yearly ? "left-[22px] bg-[#121214]" : "left-0.5 bg-ink border border-hairline-strong"
+              }`}
             />
           </button>
           <span
-            className={`text-sm font-medium transition-colors ${yearly ? "text-white" : "text-white/40"}`}
+            className={`text-sm font-medium transition-colors ${yearly ? "text-ink" : "text-ink-mute-2"}`}
           >
             Yearly
-            <span className="ml-2 rounded-full bg-emerald-400/15 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
+            <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-ink">
               2 months free
             </span>
           </span>
         </Reveal>
 
-        <div className="mt-12 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-3 lg:gap-5">
+        <div className="mt-12 grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {plans.map((plan, i) => (
-            <Reveal key={plan.name} delay={i * 0.08} className="h-full">
+            <Reveal key={plan.name} delay={i * 0.06} className="h-full">
               <div
-                className={`relative flex h-full flex-col rounded-[24px] p-8 ${
+                className={`relative flex h-full flex-col rounded-lg p-8 ${
                   plan.popular
-                    ? "border border-transparent bg-[#0e0e16] shadow-[0_0_60px_-16px_rgba(139,92,246,0.55)] [background:linear-gradient(#0e0e16,#0e0e16)_padding-box,linear-gradient(140deg,#6366f1,#8b5cf6)_border-box] lg:-my-3 lg:py-11"
-                    : "border border-white/[0.08] bg-[#0e0e16] card-shadow"
+                    ? "border border-primary/30 bg-canvas-night-soft text-white shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
+                    : "border border-hairline bg-canvas-soft elev-1"
                 }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-[0_8px_24px_-6px_rgba(139,92,246,0.8)]">
-                    <Sparkles className="size-3" />
+                  <span className="absolute -top-3 left-8 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-[#121214] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink elev-1">
+                    <Sparkles className="size-3 text-primary" />
                     Most popular
                   </span>
                 )}
 
-                <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
-                <p className="mt-1 text-[13.5px] text-white/45">{plan.tagline}</p>
+                <h3 className={`text-lg font-medium ${plan.popular ? "text-white" : "text-ink"}`}>
+                  {plan.name}
+                </h3>
+                <p className={`mt-1 text-[13.5px] ${plan.popular ? "text-white/60" : "text-ink-mute"}`}>
+                  {plan.tagline}
+                </p>
 
                 <div className="mt-6 flex items-baseline gap-1.5">
                   <AnimatePresence mode="popLayout" initial={false}>
@@ -144,28 +144,23 @@ export default function Pricing() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.25, ease: "easeOut" }}
-                      className="text-5xl font-semibold tracking-[-0.03em] text-white"
+                      className={`text-5xl font-medium tracking-[-0.03em] ${plan.popular ? "text-white" : "text-ink"}`}
                     >
                       ${plan.monthly === 0 ? "0" : yearly ? plan.yearly : plan.monthly}
                     </motion.span>
                   </AnimatePresence>
-                  <span className="text-sm text-white/40">
+                  <span className={`text-sm ${plan.popular ? "text-white/50" : "text-ink-mute"}`}>
                     {plan.monthly === 0 ? "forever" : "/mo"}
                   </span>
                 </div>
-                {plan.monthly !== 0 && (
-                  <p className="mt-1 text-[12.5px] text-white/40">
-                    {yearly ? "billed yearly" : "billed monthly"}
-                  </p>
-                )}
 
                 <a
-                  href="#cta"
+                  href="#pricing"
                   onClick={(e) => e.preventDefault()}
-                  className={`group mt-7 inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-[14px] font-semibold transition-all duration-300 focus-visible:outline-2 focus-visible:outline-indigo-400 ${
+                  className={`group mt-7 inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-white ${
                     plan.popular
-                      ? "bg-gradient-to-r from-indigo-500 to-purple-600 text-white hover:shadow-[0_0_36px_-8px_rgba(139,92,246,0.9)] hover:brightness-110"
-                      : "border border-white/10 bg-white/[0.03] text-white/80 hover:border-white/25 hover:text-white"
+                      ? "bg-primary text-[#121214] hover:bg-primary-deep"
+                      : "border border-hairline-strong bg-canvas-soft text-ink hover:bg-white/[0.05]"
                   }`}
                 >
                   {plan.cta}
@@ -174,12 +169,10 @@ export default function Pricing() {
 
                 <ul className="mt-8 space-y-3">
                   {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2.5 text-[13.5px] text-white/65">
+                    <li key={f} className={`flex items-start gap-2.5 text-[13.5px] ${plan.popular ? "text-white/70" : "text-ink-mute"}`}>
                       <span
-                        className={`mt-0.5 flex size-4.5 shrink-0 items-center justify-center rounded-full ${
-                          plan.popular
-                            ? "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
-                            : "bg-white/10 text-indigo-300"
+                        className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full ${
+                          plan.popular ? "bg-primary text-[#121214]" : "bg-canvas text-primary border border-primary/40"
                         }`}
                       >
                         <Check className="size-3" />
@@ -193,10 +186,10 @@ export default function Pricing() {
           ))}
         </div>
 
-        <Reveal delay={0.15} className="mt-10 text-center">
-          <p className="text-[13.5px] text-white/40">
+        <Reveal delay={0.12} className="mt-10 text-center">
+          <p className="text-[13.5px] text-ink-mute">
             All plans include unlimited published pages and GDPR-ready hosting.{" "}
-            <a href="#" className="font-medium text-indigo-300 hover:text-indigo-200">
+            <a href="#" className="font-medium text-ink underline underline-offset-4 hover:text-primary">
               See full comparison →
             </a>
           </p>

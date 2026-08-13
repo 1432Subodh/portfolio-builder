@@ -21,15 +21,15 @@ export default function SectionHeading({
     >
       <p
         id={id}
-        className="text-[12px] font-semibold uppercase tracking-[0.18em] text-indigo-300"
+        className="text-[12px] font-semibold uppercase tracking-[0.18em] text-ink-mute"
       >
         {eyebrow}
       </p>
-      <h2 className="mt-3 text-balance text-4xl font-semibold tracking-[-0.03em] text-white sm:text-5xl">
+      <h2 className="mt-3 text-balance text-4xl font-medium leading-[1.15] tracking-[-0.03em] text-ink sm:text-5xl">
         {title}
       </h2>
       {description && (
-        <p className="mt-4 text-balance text-lg leading-relaxed text-white/55">
+        <p className="mt-4 text-balance text-lg leading-relaxed text-ink-mute">
           {description}
         </p>
       )}

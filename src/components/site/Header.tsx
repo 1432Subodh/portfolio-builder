@@ -12,7 +12,6 @@ import {
   LineChart,
   Menu,
   MessageSquare,
-  Palmtree,
   Plus,
   Rss,
   Sparkles,
@@ -61,7 +60,6 @@ const productItems: DropdownItemDef[] = [
   },
 ];
 
-/* Featured product card */
 const featuredProduct = {
   title: "AI Design Studio",
   desc: "Describe your vibe and Folioforge drafts an entire portfolio — layout, type scale and motion included.",
@@ -112,9 +110,9 @@ const navItems: (
   { label: "Pricing", type: "link", href: "#pricing" },
 ];
 
-/* Dropdown container style — glass panel */
+/* Dropdown panel — dark canvas, hairline, elevation 2 */
 const panelCls =
-  "absolute left-1/2 top-[calc(100%+14px)] -translate-x-1/2 w-[min(680px,calc(100vw-32px))] origin-top rounded-2xl border border-white/10 bg-[#0c0c14]/90 p-3 backdrop-blur-2xl shadow-[0_24px_80px_-16px_rgba(0,0,0,0.85)]";
+  "absolute left-1/2 top-[calc(100%+10px)] -translate-x-1/2 w-[min(680px,calc(100vw-32px))] origin-top rounded-lg border border-hairline bg-canvas-night p-3 elev-3";
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -143,22 +141,22 @@ function DropdownItem({ item, index, onNavigate }: {
       }}
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.08 + index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="group flex items-start gap-3 rounded-xl p-3 transition-colors duration-200 hover:bg-white/[0.06] hover:shadow-[0_0_32px_-10px_rgba(99,102,241,0.35)] focus-visible:outline-2 focus-visible:outline-indigo-400"
+      transition={{ delay: 0.06 + index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="group flex items-start gap-3 rounded-md p-3 transition-colors duration-150 hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-white"
     >
-      <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-indigo-300 transition-transform duration-300 group-hover:scale-110 group-hover:text-white">
-        <Icon className="size-5" />
+      <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border border-hairline bg-canvas-soft text-ink-mute transition-colors duration-150 group-hover:border-primary/60 group-hover:text-primary">
+        <Icon className="size-4.5" />
       </span>
       <span>
-        <span className="flex items-center gap-2 text-sm font-medium text-white">
+        <span className="flex items-center gap-2 text-sm font-medium text-ink">
           {item.title}
           {item.tag && (
-            <span className="rounded-full bg-emerald-400/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-300">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
               {item.tag}
             </span>
           )}
         </span>
-        <span className="mt-0.5 block text-[13px] leading-snug text-white/50">
+        <span className="mt-0.5 block text-[13px] leading-snug text-ink-mute">
           {item.desc}
         </span>
       </span>
@@ -204,7 +202,7 @@ export default function Header() {
     return () => {
       document.removeEventListener("scroll", close);
       document.removeEventListener("keydown", onKey);
-      document.removeEventListener("pointermove", onPointer);
+      document.removeEventListener("pointerdown", onPointer);
     };
   }, []);
 
@@ -223,15 +221,13 @@ export default function Header() {
     <header
       ref={headerRef}
       onMouseLeave={() => setOpen(null)}
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "border-b border-white/[0.06] bg-[#0a0a0f]/70 backdrop-blur-xl"
-          : "bg-transparent"
+      className={`fixed inset-x-0 top-0 z-50 bg-[#121214] transition-all duration-300 ${
+        scrolled ? "border-b border-hairline elev-1" : "border-b border-hairline-cool"
       }`}
     >
       <nav
         aria-label="Main"
-        className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+        className="mx-auto flex h-16 max-w-[1280px] items-center justify-between px-4 sm:px-6 lg:px-8"
       >
         {/* Logo */}
         <Link
@@ -240,25 +236,21 @@ export default function Header() {
             e.preventDefault();
             navigate("#hero");
           }}
-          className="focus-visible:outline-2 focus-visible:outline-indigo-400"
+          className="focus-visible:outline-2 focus-visible:outline-primary"
           aria-label="Folioforge home"
         >
-          <span className="group relative inline-flex items-center gap-2">
-            <span className="relative flex size-8 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 transition-shadow duration-300 group-hover:shadow-[0_0_24px_-4px_rgba(139,92,246,0.7)]">
-              <Sparkles className="size-4 text-white" />
-              <span className="absolute inset-0 -translate-x-full bg-[linear-gradient(105deg,transparent,45%,rgba(255,255,255,0.55),55%,transparent)] transition-transform duration-700 ease-out group-hover:translate-x-full" />
+          <span className="inline-flex items-center gap-2">
+            <span className="flex size-7 items-center justify-center rounded-md border border-hairline-strong bg-canvas-soft">
+              <Sparkles className="size-4 text-primary" />
             </span>
-            <span className="text-[17px] font-semibold tracking-tight text-white">
-              Folio<span className="gradient-text">forge</span>
+            <span className="text-[17px] font-medium tracking-tight text-ink">
+              Folioforge
             </span>
           </span>
         </Link>
 
         {/* Desktop nav */}
-        <div
-          className="hidden items-center gap-1 lg:flex"
-          onMouseEnter={() => setOpen((prev) => prev)}
-        >
+        <div className="hidden items-center gap-1 lg:flex">
           {navItems.map((item) =>
             item.type === "dropdown" ? (
               <div
@@ -270,7 +262,7 @@ export default function Header() {
                   type="button"
                   aria-expanded={open === item.key}
                   aria-controls={`menu-${item.key}`}
-                  className="flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-indigo-400"
+                  className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
                 >
                   {item.label}
                   <Chevron open={open === item.key} />
@@ -282,9 +274,9 @@ export default function Header() {
                       id={`menu-${item.key}`}
                       role="dialog"
                       aria-label={`${item.label} menu`}
-                      initial={{ opacity: 0, y: -14, scale: 0.96 }}
+                      initial={{ opacity: 0, y: -10, scale: 0.98 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.97 }}
+                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
                       transition={transition}
                       className={panelCls}
                     >
@@ -300,20 +292,19 @@ export default function Header() {
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="group relative col-span-2 overflow-hidden rounded-xl border border-white/[0.06] bg-gradient-to-br from-indigo-500/[0.14] via-transparent to-purple-500/[0.14] p-4 transition-colors duration-300 hover:border-indigo-400/30 hover:shadow-[0_0_40px_-12px_rgba(99,102,241,0.5)]"
+                            className="group col-span-2 flex flex-col justify-between rounded-md border border-hairline bg-canvas-soft p-5 transition-colors duration-150 hover:bg-canvas-night hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
                           >
-                            <div className="pointer-events-none absolute -right-10 -top-10 size-40 rounded-full bg-purple-500/15 blur-3xl transition-opacity duration-300 group-hover:opacity-100" />
-                            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-indigo-300">
+                            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary">
                               <Sparkles className="size-3.5" />
                               Featured
                             </p>
-                            <p className="mt-2 text-base font-semibold text-white">
+                            <p className="mt-2 text-[16px] font-medium text-ink">
                               {featuredProduct.title}
                             </p>
-                            <p className="mt-1 max-w-md text-[13px] leading-relaxed text-white/55">
+                            <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ink-mute">
                               {featuredProduct.desc}
                             </p>
-                            <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-indigo-300 transition-colors duration-200 group-hover:text-indigo-200">
+                            <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-ink transition-colors duration-150 group-hover:text-primary">
                               See it in action
                               <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                             </p>
@@ -345,24 +336,23 @@ export default function Header() {
                             href={featuredArticle.href}
                             onClick={(e) => {
                               e.preventDefault();
-                              navigate("#how-it-works");
+                              navigate("#solutions");
                             }}
                             initial={{ opacity: 0, y: 12 }}
                             animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.12, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="group relative flex flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500/[0.18] to-purple-600/[0.18] p-5 transition-all duration-300 hover:shadow-[0_0_40px_-12px_rgba(139,92,246,0.55)]"
+                            transition={{ delay: 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                            className="group relative flex flex-col justify-between rounded-md border border-hairline bg-canvas-soft p-5 transition-colors duration-150 hover:bg-canvas-night hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
                           >
-                            <div className="pointer-events-none absolute inset-0 opacity-0 [background:linear-gradient(0deg,transparent,rgba(255,255,255,0.06))] transition-opacity duration-300 group-hover:opacity-100" />
-                            <span className="w-fit rounded-full bg-emerald-400/15 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-emerald-300">
+                            <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-ink">
                               {featuredArticle.tag}
                             </span>
-                            <p className="mt-4 text-[15px] font-medium leading-snug text-white">
+                            <p className="mt-4 text-[15px] font-medium leading-snug text-ink">
                               {featuredArticle.title}
                             </p>
-                            <span className="mt-3 flex items-center gap-2 text-xs text-white/45">
-                              <Palmtree className="size-3.5" />
+                            <span className="mt-3 flex items-center gap-2 text-xs text-ink-mute">
+                              <BookOpen className="size-3.5" />
                               {featuredArticle.minute}
-                              <span className="ml-auto inline-flex items-center gap-1 text-indigo-300 transition-colors group-hover:text-indigo-200">
+                              <span className="ml-auto inline-flex items-center gap-1 text-ink transition-colors group-hover:text-primary">
                                 Read
                                 <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                               </span>
@@ -382,7 +372,7 @@ export default function Header() {
                   e.preventDefault();
                   navigate(item.href ?? "#");
                 }}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-indigo-400"
+                className="rounded-md px-3 py-2 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
               >
                 {item.label}
               </Link>
@@ -391,14 +381,14 @@ export default function Header() {
         </div>
 
         {/* CTAs */}
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <Link
             href="#"
             onClick={(e) => {
               e.preventDefault();
               navigate("#pricing");
             }}
-            className="rounded-lg px-3 py-2 text-sm font-medium text-white/70 transition-colors duration-200 hover:text-white focus-visible:outline-2 focus-visible:outline-indigo-400"
+            className="rounded-md px-3 py-2 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
           >
             Sign In
           </Link>
@@ -406,9 +396,9 @@ export default function Header() {
             href="#"
             onClick={(e) => {
               e.preventDefault();
-              navigate("#cta");
+              navigate("#pricing");
             }}
-            className="group inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2 text-sm font-semibold text-white transition-all duration-300 hover:shadow-[0_0_28px_-6px_rgba(139,92,246,0.8)] hover:brightness-110 focus-visible:outline-2 focus-visible:outline-indigo-400"
+            className="group inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-ink transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary"
           >
             Get Started
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
@@ -422,7 +412,7 @@ export default function Header() {
           aria-expanded={mobileOpen}
           aria-label="Toggle navigation menu"
           aria-controls={`menu-${menuId}`}
-          className="inline-flex size-10 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/5 hover:text-white lg:hidden focus-visible:outline-2 focus-visible:outline-indigo-400"
+            className="inline-flex size-10 items-center justify-center rounded-md text-ink transition-colors hover:bg-white/[0.04] lg:hidden focus-visible:outline-2 focus-visible:outline-white"
         >
           {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
@@ -437,7 +427,7 @@ export default function Header() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: "easeOut" }}
-            className="border-b border-white/[0.06] bg-[#0a0a0f]/95 backdrop-blur-xl lg:hidden"
+            className="border-b border-hairline bg-[#121214] lg:hidden"
           >
             <div className="space-y-1 px-4 py-4">
               {navItems.map((item) =>
@@ -446,10 +436,10 @@ export default function Header() {
                     <button
                       type="button"
                       onClick={() => navigate(`#${item.key === "product" ? "features" : "how-it-works"}`)}
-                      className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:bg-white/5"
+                      className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-ink hover:bg-white/[0.04]"
                     >
                       {item.label}
-                      <span className="text-white/40">
+                      <span className="text-ink-mute">
                         {item.key === "product" ? "Templates" : "Guides"}
                       </span>
                     </button>
@@ -462,7 +452,7 @@ export default function Header() {
                       e.preventDefault();
                       navigate(item.href ?? "#");
                     }}
-                    className="block rounded-lg px-3 py-2.5 text-sm font-medium text-white/80 hover:bg-white/5"
+                    className="block rounded-md px-3 py-2.5 text-sm font-medium text-ink hover:bg-white/[0.04]"
                   >
                     {item.label}
                   </Link>
@@ -472,14 +462,14 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => navigate("#pricing")}
-                  className="flex-1 rounded-lg border border-white/10 px-4 py-2.5 text-sm font-semibold text-white/80 hover:bg-white/5"
+                  className="flex-1 rounded-md border border-hairline-strong px-4 py-2.5 text-sm font-medium text-ink hover:bg-white/[0.04]"
                 >
                   Sign In
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate("#cta")}
-                  className="flex-1 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white"
+                  onClick={() => navigate("#pricing")}
+                  className="flex-1 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-ink hover:bg-primary-deep"
                 >
                   Get Started
                 </button>

@@ -42,30 +42,30 @@ const socials = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-white/[0.06] bg-[#08080c]">
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <footer className="border-t border-hairline bg-canvas-soft">
+      <div className="mx-auto max-w-[1280px] px-4 py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-10 md:grid-cols-5">
           {/* brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="#hero" className="inline-flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600">
-                <Sparkles className="size-4 text-white" />
+              <span className="flex size-7 items-center justify-center rounded-md border border-hairline-strong bg-canvas">
+                <Sparkles className="size-4 text-primary" />
               </span>
-              <span className="text-[17px] font-semibold tracking-tight text-white">
-                Folio<span className="gradient-text">forge</span>
+              <span className="text-[17px] font-medium tracking-tight text-ink">
+                Folioforge
               </span>
             </Link>
-            <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-white/45">
+            <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-ink-mute">
               The portfolio builder that drafts, publishes and proves your work —
               so you can focus on the work itself.
             </p>
-            <div className="mt-5 flex gap-2.5">
+            <div className="mt-5 flex gap-2">
               {socials.map((s) => (
                 <a
                   key={s.label}
                   href="#"
                   aria-label={s.label}
-                  className="flex size-9 items-center justify-center rounded-lg border border-white/10 text-white/50 transition-colors duration-200 hover:border-white/25 hover:text-white"
+                  className="flex size-9 items-center justify-center rounded-md border border-hairline-strong bg-canvas text-ink-mute transition-colors duration-200 hover:border-ink-mute-2 hover:text-ink"
                 >
                   <s.icon className="size-4" />
                 </a>
@@ -75,7 +75,7 @@ export default function Footer() {
 
           {groups.map((g) => (
             <div key={g.title}>
-              <h4 className="text-[12px] font-semibold uppercase tracking-[0.16em] text-white/35">
+              <h4 className="text-[12px] font-semibold uppercase tracking-[0.16em] text-ink-faint">
                 {g.title}
               </h4>
               <ul className="mt-4 space-y-2.5">
@@ -83,7 +83,7 @@ export default function Footer() {
                   <li key={l}>
                     <a
                       href="#"
-                      className="text-[14px] text-white/55 transition-colors duration-200 hover:text-white"
+                      className="text-[14px] text-ink-mute transition-colors duration-200 hover:text-ink"
                     >
                       {l}
                     </a>
@@ -94,12 +94,12 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 sm:flex-row">
-          <p className="text-[12.5px] text-white/35">
+        <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-hairline pt-8 sm:flex-row">
+          <p className="text-[12.5px] text-ink-mute">
             © {new Date().getFullYear()} Folioforge Labs, Inc. All rights reserved.
           </p>
-          <p className="text-[12.5px] text-white/35">
-            Made with <span className="text-indigo-400">◆</span> in Berlin &amp; Toronto · 99.99% uptime
+          <p className="text-[12.5px] text-ink-mute">
+            Made in Berlin &amp; Toronto · 99.99% uptime
           </p>
         </div>
       </div>

@@ -1,21 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0a0f;
-  --foreground: #ffffff;
-  --primary: #6366f1;
-  --primary-2: #8b5cf6;
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --background: #121214;
+  --foreground: #f5f5f4;
+  --primary: #3ecf8e;
+  --primary-deep: #24b47e;
+  --font-sans: var(--font-inter), "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--primary);
-  --color-primary-2: var(--primary-2);
-  --color-surface: #101018;
-  --color-surface-2: #15151f;
-  --color-hairline: rgba(255, 255, 255, 0.08);
+  --color-primary-deep: var(--primary-deep);
+  --color-ink: #f5f5f4;
+  --color-ink-2: #e8e8e7;
+  --color-ink-mute: #a3a3a3;
+  --color-ink-mute-2: #737373;
+  --color-ink-faint: #525252;
+  --color-canvas: #18181b;
+  --color-canvas-soft: #1c1c1e;
+  --color-canvas-night: #0d0d0f;
+  --color-canvas-night-soft: #202023;
+  --color-hairline: #2a2a2e;
+  --color-hairline-strong: #3f3f46;
+  --color-hairline-cool: #26262a;
+  --color-hairline-cool-3: #3a3a40;
   --font-sans: var(--font-sans);
 }
 
@@ -26,9 +36,6 @@
 
   html {
     scroll-behavior: smooth;
-  }
-
-  html {
     color-scheme: dark;
   }
 
@@ -41,14 +48,15 @@
   }
 
   ::selection {
-    background: rgba(139, 92, 246, 0.4);
-    color: #fff;
+    background: rgba(62, 207, 142, 0.28);
+    color: #f5f5f4;
   }
 
   @media (prefers-reduced-motion: reduce) {
     html {
       scroll-behavior: auto;
     }
+
     *,
     *::before,
     *::after {
@@ -59,31 +67,6 @@
 }
 
 @layer utilities {
-  .gradient-text {
-    background-image: linear-gradient(120deg, #a5b4fc 0%, #818cf8 35%, #8b5cf6 70%, #c4b5fd 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-  }
-
-  .glow {
-    box-shadow: 0 0 60px -12px rgba(99, 102, 241, 0.35);
-  }
-
-  .glow-soft {
-    box-shadow: 0 0 40px -18px rgba(139, 92, 246, 0.28);
-  }
-
-  .card-shadow {
-    box-shadow:
-      0 1px 0 0 rgba(255, 255, 255, 0.04) inset,
-      0 20px 60px -24px rgba(0, 0, 0, 0.7);
-  }
-
-  .hairline {
-    border: 1px solid rgba(255, 255, 255, 0.08);
-  }
-
   .text-balance {
     text-wrap: balance;
   }
@@ -92,11 +75,127 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
 
-  .grid-fade-mask {
-    mask-image: radial-gradient(ellipse 80% 70% at 50% 0%, black 30%, transparent 100%);
+  /* flat hairline card */
+  .card-line {
+    border: 1px solid var(--color-hairline);
+  }
+
+  /* elevation ladder */
+  .elev-1 {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  }
+
+  .elev-2 {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .elev-3 {
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+  }
+
+  /* testimonial wall edge fade (left / right / bottom) */
+  .wall-fade-edges {
+    -webkit-mask-image: linear-gradient(to right,
+        transparent 0,
+        black 12%,
+        black 88%,
+        transparent 100%),
+      linear-gradient(to top, transparent 0, black 15%, black 100%);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(to right,
+        transparent 0,
+        black 12%,
+        black 88%,
+        transparent 100%),
+      linear-gradient(to top, transparent 0, black 15%, black 100%);
+    mask-composite: intersect;
+  }
+
+  /* testimonial wall refresh effects */
+  .fx-rise {
+    animation: fx-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .fx-pop {
+    animation: fx-pop 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .fx-blur {
+    animation: fx-blur 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .fx-sway {
+    animation: fx-sway 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .fx-flip {
+    animation: fx-flip 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes fx-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fx-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.82);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fx-blur {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes fx-sway {
+  from {
+    opacity: 0;
+    transform: translateX(-18px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fx-flip {
+  from {
+    opacity: 0;
+    transform: perspective(600px) rotateY(22deg);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
