@@ -99,7 +99,7 @@ export default function TestimonialWall({
         className="pointer-events-none absolute left-1/2 top-[40%] size-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(62,207,142,0.09),transparent_62%)] blur-3xl"
       />
       <div
-        className="wall-fade-edges relative grid h-[450px] w-full grid-cols-2 items-start overflow-hidden md:grid-cols-3 lg:grid-cols-5"
+        className="wall-fade-edges relative grid h-[510px] w-full grid-cols-2 items-start overflow-hidden md:grid-cols-3 lg:grid-cols-5"
         style={{ columnGap: gap }}
       >
         {columns.map((col, ci) => (

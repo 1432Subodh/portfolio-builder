@@ -56,7 +56,7 @@ export default function Features() {
   const [analyticsHovered, setAnalyticsHovered] = useState(false);
 
   return (
-    <section id="features" className="relative scroll-mt-24 py-24 sm:py-28">
+    <section id="features" className="relative scroll-mt-24 py-14 sm:py-16 border-b">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,rgba(62,207,142,0.08),transparent_70%)]"
@@ -235,7 +235,7 @@ export default function Features() {
               </div>
             </Cell>
 
-            
+
           </div>
         </Reveal>
       </div>

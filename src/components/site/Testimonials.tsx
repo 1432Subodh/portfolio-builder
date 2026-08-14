@@ -13,7 +13,8 @@ export default function Testimonials({ limit = 15, gap = 5 }: Props) {
   return (
     <section
       id="testimonials"
-      className="relative scroll-mt-24 overflow-hidden  py-24 sm:py-28"
+      className="relative scroll-mt-24 overflow-hidden  py-14 sm:py-16 border-b "
+      style={{ paddingBottom: 10 }}
     >
       <div
         aria-hidden

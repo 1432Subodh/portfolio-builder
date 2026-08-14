@@ -56,7 +56,7 @@ export default function Pricing() {
   const [yearly, setYearly] = useState(true);
 
   return (
-    <section id="pricing" className="relative scroll-mt-24 py-24 sm:py-28">
+    <section id="pricing" className="relative scroll-mt-24 py-14 sm:py-16 border-b">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,rgba(62,207,142,0.08),transparent_70%)]"
@@ -90,16 +90,14 @@ export default function Pricing() {
             aria-checked={yearly}
             aria-label="Toggle yearly billing"
             onClick={() => setYearly((v) => !v)}
-            className={`relative h-7 w-12 rounded-full transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white ${
-              yearly ? "bg-primary" : "border border-hairline-strong bg-canvas-soft"
-            }`}
+            className={`relative h-7 w-12 rounded-full transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-white ${yearly ? "bg-primary" : "border border-hairline-strong bg-canvas-soft"
+              }`}
           >
             <motion.span
               layout
               transition={{ type: "spring", stiffness: 500, damping: 32 }}
-              className={`absolute top-0.5 size-6 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.4)] ${
-                yearly ? "left-[22px] bg-[#121214]" : "left-0.5 bg-ink border border-hairline-strong"
-              }`}
+              className={`absolute top-0.5 size-6 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.4)] ${yearly ? "left-[22px] bg-[#121214]" : "left-0.5 bg-ink border border-hairline-strong"
+                }`}
             />
           </button>
           <span
@@ -116,11 +114,10 @@ export default function Pricing() {
           {plans.map((plan, i) => (
             <Reveal key={plan.name} delay={i * 0.06} className="h-full">
               <div
-                className={`relative flex h-full flex-col rounded-lg p-8 ${
-                  plan.popular
-                    ? "border border-primary/30 bg-canvas-night-soft text-white shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
-                    : "border border-hairline bg-canvas-soft elev-1"
-                }`}
+                className={`relative flex h-full flex-col rounded-lg p-8 ${plan.popular
+                  ? "border border-primary/30 bg-canvas-night-soft text-white shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
+                  : "border border-hairline bg-canvas-soft elev-1"
+                  }`}
               >
                 {plan.popular && (
                   <span className="absolute -top-3 left-8 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-[#121214] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink elev-1">
@@ -157,11 +154,10 @@ export default function Pricing() {
                 <a
                   href="#pricing"
                   onClick={(e) => e.preventDefault()}
-                  className={`group mt-7 inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-white ${
-                    plan.popular
-                      ? "bg-primary text-[#121214] hover:bg-primary-deep"
-                      : "border border-hairline-strong bg-canvas-soft text-ink hover:bg-white/[0.05]"
-                  }`}
+                  className={`group mt-7 inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-white ${plan.popular
+                    ? "bg-primary text-ink hover:bg-primary-deep"
+                    : "border border-hairline-strong bg-canvas-soft text-ink hover:bg-white/[0.05]"
+                    }`}
                 >
                   {plan.cta}
                   <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-1" />
@@ -171,9 +167,8 @@ export default function Pricing() {
                   {plan.features.map((f) => (
                     <li key={f} className={`flex items-start gap-2.5 text-[13.5px] ${plan.popular ? "text-white/70" : "text-ink-mute"}`}>
                       <span
-                        className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full ${
-                          plan.popular ? "bg-primary text-[#121214]" : "bg-canvas text-primary border border-primary/40"
-                        }`}
+                        className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full ${plan.popular ? "bg-primary text-ink" : "bg-canvas text-primary border border-primary/40"
+                          }`}
                       >
                         <Check className="size-3" />
                       </span>

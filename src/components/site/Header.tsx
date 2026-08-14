@@ -388,7 +388,7 @@ export default function Header() {
               e.preventDefault();
               navigate("#pricing");
             }}
-            className="rounded-md px-3 py-2 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
+            className="rounded-md px-2 py-1 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary border border-hairline-strong"
           >
             Sign In
           </Link>
@@ -398,7 +398,7 @@ export default function Header() {
               e.preventDefault();
               navigate("#pricing");
             }}
-            className="group inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-ink transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary"
+            className="group inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1 text-sm  text-ink transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary border border-hairline-strong"
           >
             Get Started
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />

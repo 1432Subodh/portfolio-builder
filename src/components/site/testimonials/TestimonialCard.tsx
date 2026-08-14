@@ -11,7 +11,7 @@ export default function TestimonialCard({ name, handle, text }: Testimonial) {
   const avatarUrl = `https://i.pravatar.cc/300?u=${encodeURIComponent(handle)}`;
 
   return (
-    <article className="break-inside-avoid rounded-2xl border border-white/[0.06] bg-[#17171a] p-4 transition-all duration-300 hover:border-white/[0.23] hover:shadow-[0_0_18px_rgba(62,207,142,0.14)] cursor-pointer">
+    <article className="break-inside-avoid rounded-2xl p-6 border border-white/[0.06] bg-[#17171a] p-4 transition-all duration-300 hover:border-white/[0.23] hover:shadow-[0_0_18px_rgba(62,207,142,0.14)] cursor-pointer">
       <div className="flex items-center gap-2">
         <div className="relative size-8 shrink-0">
           <span className="flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.05]">
@@ -32,7 +32,7 @@ export default function TestimonialCard({ name, handle, text }: Testimonial) {
         </div>
         <p className="min-w-0 truncate text-[13px] font-medium text-white/85">{handle}</p>
       </div>
-      <p className="mt-3 text-[13px] leading-relaxed text-white/55">{text}</p>
+      <p className="mt-3 text-[15px] leading-relaxed text-white/55">{text}</p>
     </article>
   );
 }

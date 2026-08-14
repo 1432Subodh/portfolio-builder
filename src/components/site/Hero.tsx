@@ -2,12 +2,14 @@
 
 import { motion } from "motion/react";
 import { ArrowRight, Play, Sparkles, Star } from "lucide-react";
+import ExpandableCaseStudies from "./case-studies/ExpandableCaseStudies";
+import { caseStudies } from "./case-studies/data";
 
 export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative isolate overflow-x-clip pb-24 pt-32 lg:pb-32 lg:pt-40"
+      className="relative isolate overflow-x-clip pb-20 pt-32 lg:pb-20 lg:pt-30"
     >
       {/* faint technical grid */}
       <div
@@ -105,6 +107,16 @@ export default function Hero() {
           </div>
         </motion.div>
       </div>
+
+      {/* Expandable case-study carousel */}
+      <motion.div
+        initial={{ opacity: 0, y: 32 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        className="mx-auto mt-20 max-w-[1280px] px-4 sm:px-6 lg:px-8"
+      >
+        <ExpandableCaseStudies items={caseStudies} />
+      </motion.div>
     </section>
   );
 }
