@@ -8,8 +8,6 @@ type Props = {
 };
 
 export default function Testimonials({ limit = 15, gap = 5 }: Props) {
-  const items = limit ? TESTIMONIALS.slice(0, limit) : TESTIMONIALS;
-
   return (
     <section
       id="testimonials"
@@ -31,12 +29,12 @@ export default function Testimonials({ limit = 15, gap = 5 }: Props) {
           <SectionHeading
             eyebrow="Wall of love"
             title={<>The people who got the call</>}
-            description="42,000+ builders trust Folioforge to put their work — and themselves — in front of the right people."
+            description="42,000+ builders trust Profilio to put their work — and themselves — in front of the right people."
           />
         </div>
       </div>
 
-      <TestimonialWall items={items} gap={gap} />
+      <TestimonialWall items={TESTIMONIALS} limit={limit} gap={gap} />
     </section>
   );
 }

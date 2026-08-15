@@ -31,14 +31,20 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function pickRandom<T>(arr: T[], count: number): T[] {
+  return shuffle(arr).slice(0, count);
+}
+
 export default function TestimonialWall({
   items,
+  limit = 15,
   gap = 5,
 }: {
   items: Testimonial[];
+  limit?: number;
   gap?: number;
 }) {
-  const [current, setCurrent] = useState(items);
+  const [current, setCurrent] = useState(items.slice(0, limit));
   const [origin, setOrigin] = useState<Origin>("top-left");
   const [tick, setTick] = useState(0);
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -47,17 +53,17 @@ export default function TestimonialWall({
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) return;
 
-    // Deterministic initial order keeps server/client HTML identical for
-    // hydration; the first refresh happens right after mount.
     const refresh = () => {
-      setCurrent(shuffle(items));
+      setCurrent(pickRandom(items, limit));
       setOrigin("top-left");
       setTick((t) => t + 1);
     };
 
-    const initial = setTimeout(refresh, 0);
+    // Randomize immediately after mount to get unique subset
+    refresh();
+
     timer.current = setInterval(() => {
-      setCurrent(shuffle(items));
+      setCurrent(pickRandom(items, limit));
       setOrigin((prev) => {
         const idx = ORIGINS.indexOf(prev);
         return ORIGINS[(idx + 1) % ORIGINS.length];
@@ -66,10 +72,9 @@ export default function TestimonialWall({
     }, 5500);
 
     return () => {
-      clearTimeout(initial);
       if (timer.current) clearInterval(timer.current);
     };
-  }, [items]);
+  }, [items, limit]);
 
   const columns: Testimonial[][] = Array.from(
     { length: COLUMN_COUNT },

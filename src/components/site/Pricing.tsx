@@ -23,7 +23,7 @@ const plans: Plan[] = [
     monthly: 0,
     yearly: 0,
     cta: "Start free",
-    features: ["1 published portfolio", "Folioforge subdomain", "All core templates"],
+    features: ["1 published portfolio", "Profilio subdomain", "All core templates"],
   },
   {
     name: "Pro",
@@ -39,7 +39,7 @@ const plans: Plan[] = [
     monthly: 24,
     yearly: 19,
     cta: "Start Studio",
-    features: ["Everything in Pro", "Client proof links", "Brand kits & custom themes", "No Folioforge badge"],
+    features: ["Everything in Pro", "Client proof links", "Brand kits & custom themes", "No Profilio badge"],
   },
   {
     name: "Team",

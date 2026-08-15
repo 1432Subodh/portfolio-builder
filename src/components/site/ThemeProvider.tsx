@@ -5,12 +5,13 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useState,
   useSyncExternalStore,
 } from "react";
 
 type Theme = "system" | "light" | "dark";
 
-const STORAGE_KEY = "folioforge-theme";
+const STORAGE_KEY = "Profilio-theme";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -28,8 +29,18 @@ const listeners = new Set<() => void>();
 
 function readStoredTheme(): Theme {
   if (typeof window === "undefined") return "system";
+
   try {
-    const stored = localStorage.getItem(STORAGE_KEY) as Theme | null;
+    const cookieValue = document.cookie
+      .split(";")
+      .map((entry) => entry.trim())
+      .find((entry) => entry.startsWith(`${STORAGE_KEY}=`));
+
+    const cookieTheme = cookieValue
+      ? decodeURIComponent(cookieValue.slice(STORAGE_KEY.length + 1))
+      : null;
+
+    const stored = cookieTheme || localStorage.getItem(STORAGE_KEY);
     return stored === "system" || stored === "light" || stored === "dark"
       ? stored
       : "system";
@@ -60,6 +71,8 @@ function persist(next: Theme) {
   cachedTheme = next;
   try {
     localStorage.setItem(STORAGE_KEY, next);
+    document.cookie = `Profilio-theme=${next};path=/;max-age=31536000`;
+    document.documentElement.dataset.theme = resolveTheme(next);
   } catch {
     /* ignore */
   }
@@ -72,13 +85,16 @@ function getSystemTheme(): "light" | "dark" {
     : "dark";
 }
 
+function resolveTheme(theme: Theme): "light" | "dark" {
+  return theme === "system" ? getSystemTheme() : theme;
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const theme = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   /* Mirror the resolved theme onto <html data-theme> */
   useEffect(() => {
-    const resolved = theme === "system" ? getSystemTheme() : theme;
-    document.documentElement.dataset.theme = resolved;
+    document.documentElement.dataset.theme = resolveTheme(theme);
 
     if (theme !== "system") return;
     const mq = window.matchMedia("(prefers-color-scheme: light)");
@@ -102,4 +118,39 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export function useTheme() {
   return useContext(ThemeContext);
+}
+
+export function useResolvedTheme() {
+  const { theme } = useTheme();
+
+  const getDocumentTheme = (): "light" | "dark" => {
+    if (typeof document === "undefined") return "light";
+
+    const storedTheme = readStoredTheme();
+    return storedTheme === "system" ? getSystemTheme() : storedTheme;
+  };
+
+  const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">(
+    getDocumentTheme
+  );
+
+  useEffect(() => {
+    const update = () => setResolvedTheme(getDocumentTheme());
+
+    update();
+
+    if (theme !== "system") return;
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const onChange = () => update();
+
+    if (typeof mq.addEventListener === "function") {
+      mq.addEventListener("change", onChange);
+      return () => mq.removeEventListener("change", onChange);
+    }
+
+    mq.addListener(onChange);
+    return () => mq.removeListener(onChange);
+  }, [theme]);
+
+  return resolvedTheme;
 }

@@ -68,7 +68,7 @@ export default function Features() {
       />
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <SectionHeading
-          eyebrow="Why Folioforge"
+          eyebrow="Why Profilio"
           title={
             <>
               Everything between you
@@ -114,7 +114,7 @@ export default function Features() {
                 <h3 className="text-xl font-medium text-ink">AI Design Studio</h3>
               </div>
               <p className="mt-4 max-w-md text-[15px] leading-relaxed text-ink-mute">
-                Describe your craft and watch Folioforge generate a bespoke
+                Describe your craft and watch Profilio generate a bespoke
                 layout — color system, type scale and motion baked in. Refine
                 it with natural language, not dials.
               </p>

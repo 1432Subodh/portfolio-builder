@@ -88,14 +88,9 @@ export default function Hero() {
       </div>
 
       {/* Expandable case-study carousel */}
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="mx-auto mt-20 max-w-[1280px] px-4 sm:px-6 lg:px-8"
-      >
+      <div className="mx-auto mt-20 max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <ExpandableCaseStudies items={caseStudies} />
-      </motion.div>
+      </div>
     </section>
   );
 }

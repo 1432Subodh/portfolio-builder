@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "motion/react";
 import { Check, Laptop, Moon, Sparkles, Sun } from "lucide-react";
 import { useTheme } from "@/components/site/ThemeProvider";
@@ -13,6 +14,31 @@ const themeOptions: { value: ThemeValue; label: string; icon: React.ComponentTyp
   { value: "light", label: "Light", icon: Sun },
   { value: "dark", label: "Dark", icon: Moon },
 ];
+
+function FooterLogo({ className = "size-7" }: { className?: string }) {
+  return (
+    <div className="relative inline-flex items-center">
+      <Image
+        src="/logo/logo-light.png"
+        alt="Profilio"
+        width={512}
+        height={512}
+        quality={50}
+        className={`${className} logo-light rounded-md object-contain w-[180px] h-[80px]`}
+        suppressHydrationWarning
+      />
+      <Image
+        src="/logo/logo-dark.png"
+        alt="Profilio"
+        width={512}
+        height={512}
+        quality={50}
+        className={`${className} logo-dark rounded-md object-contain w-[180px] h-[80px]`}
+        suppressHydrationWarning
+      />
+    </div>
+  );
+}
 
 const groups: { title: string; links: string[] }[] = [
   { title: "Product", links: ["Templates", "AI Studio", "Domains", "Analytics", "Pricing"] },
@@ -139,12 +165,8 @@ export default function Footer() {
           {/* brand */}
           <div className="col-span-2 md:col-span-1">
             <Link href="#hero" className="inline-flex items-center gap-2">
-              <span className="flex size-7 items-center justify-center rounded-md border border-hairline-strong bg-canvas">
-                <Sparkles className="size-4 text-primary" />
-              </span>
-              <span className="text-[17px] font-medium tracking-tight text-ink">
-                Folioforge
-              </span>
+              <FooterLogo />
+              
             </Link>
             <p className="mt-4 max-w-xs text-[13.5px] leading-relaxed text-ink-mute">
               The portfolio builder that drafts, publishes and proves your work —
@@ -187,7 +209,7 @@ export default function Footer() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-hairline pt-8 sm:flex-row">
           <p className="text-[12.5px] text-ink-mute">
-            © {new Date().getFullYear()} Folioforge Labs, Inc. All rights reserved.
+            © {new Date().getFullYear()} Profilio Labs, Inc. All rights reserved.
           </p>
 
           <div className="flex items-center gap-4">

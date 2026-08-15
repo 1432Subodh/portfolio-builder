@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { motion } from "motion/react";
-import { Sparkles, Star } from "lucide-react";
+import { Star } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 /* Animated left panel — 3D video + gradient overlays + floating UI    */
@@ -54,7 +55,8 @@ export default function AnimatedPanel({ mode }: { mode: "signin" | "signup" }) {
   };
 
   return (
-    <div
+    <motion.div
+      layoutId="auth-panel"
       ref={containerRef}
       onMouseMove={handleMouseMove}
       className="relative hidden min-h-svh flex-col overflow-hidden bg-background lg:flex"
@@ -70,7 +72,7 @@ export default function AnimatedPanel({ mode }: { mode: "signin" | "signup" }) {
           style={{ filter: "brightness(1) saturate(1.2)" }}
         >
           <source
-            src="/3d-video/Abstract_3D_architectural_animat…_202608151324.mp4"
+            src="/3d-video/signin.mp4"
             type="video/mp4"
           />
         </video>
@@ -92,11 +94,15 @@ export default function AnimatedPanel({ mode }: { mode: "signin" | "signup" }) {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="inline-flex items-center gap-2"
         >
-          <span className="flex size-7 items-center justify-center rounded-lg border border-white/15 bg-white/[0.08] backdrop-blur-md">
-            <Sparkles className="size-3.5 text-primary" />
-          </span>
+          <Image
+            src="/logo/logo-dark.png"
+            alt="Profilio"
+            width={28}
+            height={28}
+            className="size-7 rounded-lg"
+          />
           <span className="text-[13px] font-medium tracking-tight text-white">
-            Folioforge
+            Profilio
           </span>
         </motion.span>
       </div>
@@ -111,7 +117,7 @@ export default function AnimatedPanel({ mode }: { mode: "signin" | "signup" }) {
           className="space-y-4"
         >
           <h2 className="text-xl font-semibold text-white">
-            Build your portfolio with Folioforge
+            Build your portfolio with Profilio
           </h2>
           <p className="max-w-sm text-sm leading-relaxed text-white/60">
             Create stunning, professional portfolios that showcase your work and
@@ -133,6 +139,6 @@ export default function AnimatedPanel({ mode }: { mode: "signin" | "signup" }) {
         </motion.div>
       </div>
 
-    </div>
+    </motion.div>
   );
 }

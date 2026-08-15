@@ -202,8 +202,13 @@ export default function ExpandableCaseStudies({
                   setActiveIndex(i);
                 }
               }}
-              animate={{ flexGrow: isActive ? ACTIVE_WEIGHT : 1 }}
-              transition={springT}
+              initial={{ opacity: 0, x: i % 2 === 0 ? -60 : 60 }}
+              animate={{ opacity: 1, x: 0, flexGrow: isActive ? ACTIVE_WEIGHT : 1 }}
+              transition={{
+                ...springT,
+                opacity: { duration: 0.5, delay: 0.1 + i * 0.08 },
+                x: { duration: 0.5, delay: 0.1 + i * 0.08, ease: [0.22, 1, 0.36, 1] },
+              }}
               className={`group relative basis-0 cursor-pointer overflow-hidden rounded-lg border transition-[filter,border-color] duration-300 focus-visible:outline-2 focus-visible:outline-white ${
                 isActive
                   ? "border-white/15"

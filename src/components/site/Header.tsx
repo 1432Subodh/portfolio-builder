@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
@@ -63,7 +64,7 @@ const productItems: DropdownItemDef[] = [
 
 const featuredProduct = {
   title: "AI Design Studio",
-  desc: "Describe your vibe and Folioforge drafts an entire portfolio — layout, type scale and motion included.",
+  desc: "Describe your vibe and Profilio drafts an entire portfolio — layout, type scale and motion included.",
   href: "#",
 };
 
@@ -106,24 +107,139 @@ const navItems: (
   | { label: string; type: "link"; href: string }
 )[] = [
   { label: "Product", type: "dropdown", key: "product" },
-  { label: "Solutions", type: "link", href: "#solutions" },
   { label: "Resources", type: "dropdown", key: "resources" },
+  { label: "Solutions", type: "link", href: "#solutions" },
   { label: "Pricing", type: "link", href: "#pricing" },
 ];
 
-/* Dropdown panel base — position comes from JS-clamped trigger rect */
+/* ------------------------------------------------------------------ */
+/* Shared dropdown panel                                               */
+/* ------------------------------------------------------------------ */
+
 const panelCls =
-  "fixed origin-top w-[min(680px,calc(100vw-32px))] rounded-lg border border-hairline bg-canvas-night p-3 elev-3";
+  "fixed origin-top w-[min(680px,calc(100vw-32px))] rounded-lg border border-hairline bg-canvas-night  elev-3 z-50";
 
 function Chevron({ open }: { open: boolean }) {
   return (
     <motion.span
       animate={{ rotate: open ? 180 : 0 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
       className="inline-flex"
     >
       <ChevronDown className="size-3.5" />
     </motion.span>
+  );
+}
+
+function Logo({ className = "size-7" }: { className?: string }) {
+  return (
+    <div className="relative inline-flex items-center">
+      <Image
+        src="/logo/logo-light.png"
+        alt="Profilio"
+        width={512}
+        height={512}
+        quality={50}
+        priority
+        className={`${className} logo-light rounded-md object-contain w-[100px] h-[80px] scale-[1.3]`}
+        suppressHydrationWarning
+      />
+      <Image
+        src="/logo/logo-dark.png"
+        alt="Profilio"
+        width={512}
+        height={512}
+        quality={50}
+        priority
+        className={`${className} logo-dark rounded-md object-contain w-[100px] h-[80px] scale-[1.3]`}
+        suppressHydrationWarning
+      />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Dropdown content renderers                                          */
+/* ------------------------------------------------------------------ */
+
+function ProductContent({ onNavigate }: { onNavigate: (href: string) => void }) {
+  return (
+    <div className="flex flex-col gap-1 overflow-hidden">
+      <motion.a
+        href={featuredProduct.href}
+        onClick={(e) => {
+          e.preventDefault();
+          onNavigate("#features");
+        }}
+        className="group flex flex-col justify-between border-hairline bg-canvas-soft p-5 transition-colors duration-150  hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
+      >
+        <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary">
+          <Sparkles className="size-3.5" />
+          Featured
+        </p>
+        <p className="mt-2 text-[16px] font-medium text-ink">
+          {featuredProduct.title}
+        </p>
+        <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ink-mute">
+          {featuredProduct.desc}
+        </p>
+        <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-ink transition-colors duration-150 group-hover:text-primary">
+          See it in action
+          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+        </p>
+      </motion.a>
+
+      <div className="grid grid-cols-2 gap-1 p-1">
+        {productItems.map((it, i) => (
+          <DropdownItem
+            key={it.title}
+            item={it}
+            index={i}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ResourcesContent({ onNavigate }: { onNavigate: (href: string) => void }) {
+  return (
+    <div className="grid grid-cols-[1.15fr_1fr] gap-1 overflow-hidden">
+      <div className="flex flex-col p-1">
+        {resourcesItems.map((it, i) => (
+          <DropdownItem
+            key={it.title}
+            item={it}
+            index={i}
+            onNavigate={onNavigate}
+          />
+        ))}
+      </div>
+      <motion.a
+        href={featuredArticle.href}
+        onClick={(e) => {
+          e.preventDefault();
+          onNavigate("#solutions");
+        }}
+        className="group relative flex flex-col justify-between bg-canvas-soft p-5 transition-colors duration-150  hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
+      >
+        <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-on-primary">
+          {featuredArticle.tag}
+        </span>
+        <p className="mt-4 text-[15px] font-medium leading-snug text-ink">
+          {featuredArticle.title}
+        </p>
+        <span className="mt-3 flex items-center gap-2 text-xs text-ink-mute">
+          <BookOpen className="size-3.5" />
+          {featuredArticle.minute}
+          <span className="ml-auto inline-flex items-center gap-1 text-ink transition-colors group-hover:text-primary">
+            Read
+            <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+          </span>
+        </span>
+      </motion.a>
+    </div>
   );
 }
 
@@ -134,15 +250,12 @@ function DropdownItem({ item, index, onNavigate }: {
 }) {
   const Icon = item.icon;
   return (
-    <motion.a
+    <a
       href={item.href}
       onClick={(e) => {
         e.preventDefault();
         onNavigate(item.href);
       }}
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.06 + index * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="group flex items-start gap-3 rounded-md p-3 transition-colors duration-150 hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-white"
     >
       <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border border-hairline bg-canvas-soft text-ink-mute transition-colors duration-150 group-hover:border-primary/60 group-hover:text-primary">
@@ -161,7 +274,7 @@ function DropdownItem({ item, index, onNavigate }: {
           {item.desc}
         </span>
       </span>
-    </motion.a>
+    </a>
   );
 }
 
@@ -331,7 +444,6 @@ function MobileGroup({ def, open, onToggle, onNavigate }: {
   );
 }
 
-/* Theme switcher: system / light / dark */
 function MobileMenu({ open, onClose, onNavigate, reduce }: {
   open: boolean;
   onClose: () => void;
@@ -395,15 +507,10 @@ function MobileMenu({ open, onClose, onNavigate, reduce }: {
                   closeAndNav("#hero");
                 }}
                 className="focus-visible:outline-2 focus-visible:outline-primary"
-                aria-label="Folioforge home"
+                aria-label="Profilio home"
               >
                 <span className="inline-flex items-center gap-2">
-                  <span className="flex size-7 items-center justify-center rounded-md border border-hairline-strong bg-canvas-soft">
-                    <Sparkles className="size-4 text-primary" />
-                  </span>
-                  <span className="text-[17px] font-medium tracking-tight text-ink">
-                    Folioforge
-                  </span>
+                  <Logo />
                 </span>
               </Link>
 
@@ -532,8 +639,13 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [panelRect, setPanelRect] = useState<{ top: number; left: number } | null>(null);
   const headerRef = useRef<HTMLElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
   const router = useRouter();
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isDropdownHovered = useRef(false);
+  const prevOpenRef = useRef<OpenMenu>(null);
+  const [direction, setDirection] = useState<"left" | "right">("left");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -543,10 +655,6 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const close = () => {
-      setOpen(null);
-      setPanelRect(null);
-    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(null);
@@ -559,33 +667,33 @@ export default function Header() {
         setOpen(null);
       }
     };
-    document.addEventListener("scroll", close, { passive: true });
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointer);
     return () => {
-      document.removeEventListener("scroll", close);
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("pointerdown", onPointer);
     };
   }, []);
 
   /* Clamp the dropdown panel inside the viewport, centered on its trigger */
+  const recalcPanelPosition = useCallback(() => {
+    if (!open || !panelRect) return;
+    const btn = document.getElementById(`menu-trigger-${open}`);
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const panelW = Math.min(680, window.innerWidth - 32);
+    const left = Math.min(
+      Math.max(r.left + r.width / 2 - panelW / 2, 8),
+      window.innerWidth - panelW - 8,
+    );
+    setPanelRect({ top: r.bottom + 10, left });
+  }, [open, panelRect]);
+
   useEffect(() => {
     if (!open || !panelRect) return;
-    const onResize = () => {
-      const btn = document.getElementById(`menu-trigger-${open}`);
-      if (!btn) return;
-      const r = btn.getBoundingClientRect();
-      const panelW = Math.min(680, window.innerWidth - 32);
-      const left = Math.min(
-        Math.max(r.left + r.width / 2 - panelW / 2, 8),
-        window.innerWidth - panelW - 8,
-      );
-      setPanelRect({ top: r.bottom + 10, left });
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [open, panelRect]);
+    window.addEventListener("resize", recalcPanelPosition);
+    return () => window.removeEventListener("resize", recalcPanelPosition);
+  }, [open, panelRect, recalcPanelPosition]);
 
   /* Close the mobile drawer when switching to desktop breakpoint */
   useEffect(() => {
@@ -607,12 +715,21 @@ export default function Header() {
         el.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
         return;
       }
-      // Anchor lives on the landing page — go home and let the hash scroll it.
       router.push("/" + href);
     }
   };
 
   const openMenu = (key: OpenMenu) => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+    if (prevOpenRef.current && prevOpenRef.current !== key) {
+      const prevIdx = navItems.findIndex((i) => i.type === "dropdown" && i.key === prevOpenRef.current);
+      const nextIdx = navItems.findIndex((i) => i.type === "dropdown" && i.key === key);
+      setDirection(nextIdx > prevIdx ? "left" : "right");
+    }
+    prevOpenRef.current = key;
     setOpen(key);
     const btn = document.getElementById(`menu-trigger-${key}`);
     if (!btn) return;
@@ -625,15 +742,50 @@ export default function Header() {
     setPanelRect({ top: r.bottom + 10, left });
   };
 
-  const transition = { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const };
+  const scheduleClose = () => {
+    if (isDropdownHovered.current) return;
+    closeTimeoutRef.current = setTimeout(() => {
+      setOpen(null);
+      setPanelRect(null);
+      closeTimeoutRef.current = null;
+    }, 120);
+  };
+
+  const cancelScheduleClose = () => {
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  };
+
+  const onHeaderMouseLeave = () => {
+    scheduleClose();
+  };
+
+  const onDropdownMouseEnter = () => {
+    isDropdownHovered.current = true;
+    cancelScheduleClose();
+  };
+
+  const onDropdownMouseLeave = () => {
+    isDropdownHovered.current = false;
+    scheduleClose();
+  };
+
+  const openTransition = reduce
+    ? { duration: 0 }
+    : { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const };
+  const closeTransition = reduce
+    ? { duration: 0 }
+    : { duration: 0.14, ease: [0.22, 1, 0.36, 1] as const };
+  const contentTransition = reduce
+    ? { duration: 0 }
+    : { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const };
 
   return (
     <header
       ref={headerRef}
-      onMouseLeave={() => {
-        setOpen(null);
-        setPanelRect(null);
-      }}
+      onMouseLeave={onHeaderMouseLeave}
       className={`fixed inset-x-0 top-0 z-50 overflow-x-clip bg-background transition-all duration-300 w-[100vw] ${
         scrolled ? "border-b border-hairline elev-1" : "border-b border-hairline-cool"
       }`}
@@ -650,15 +802,10 @@ export default function Header() {
             navigate("#hero");
           }}
           className="focus-visible:outline-2 focus-visible:outline-primary"
-          aria-label="Folioforge home"
+          aria-label="Profilio home"
         >
           <span className="inline-flex items-center gap-2">
-            <span className="flex size-7 items-center justify-center rounded-md border border-hairline-strong bg-canvas-soft">
-              <Sparkles className="size-4 text-primary" />
-            </span>
-            <span className="text-[17px] font-medium tracking-tight text-ink">
-              Folioforge
-            </span>
+            <Logo />
           </span>
         </Link>
 
@@ -674,112 +821,12 @@ export default function Header() {
                   type="button"
                   id={`menu-trigger-${item.key}`}
                   aria-expanded={open === item.key}
-                  aria-controls={`menu-${item.key}`}
+                  aria-controls="desktop-dropdown"
                   className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
                 >
                   {item.label}
                   <Chevron open={open === item.key} />
                 </button>
-
-                <AnimatePresence>
-                  {open === item.key && (
-                    <motion.div
-                      id={`menu-${item.key}`}
-                      role="dialog"
-                      aria-label={`${item.label} menu`}
-                      initial={{ opacity: 0, y: -10, scale: 0.98 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                      transition={transition}
-                      style={{
-                        top: panelRect?.top ?? "calc(100% + 10px)",
-                        left: panelRect?.left ?? 0,
-                      }}
-                      className={panelCls}
-                    >
-                      {item.key === "product" ? (
-                        <div className="grid grid-cols-2 gap-1">
-                          {/* Featured */}
-                          <motion.a
-                            href={featuredProduct.href}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              navigate("#features");
-                            }}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="group col-span-2 flex flex-col justify-between rounded-md border border-hairline bg-canvas-soft p-5 transition-colors duration-150 hover:bg-canvas-night hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
-                          >
-                            <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary">
-                              <Sparkles className="size-3.5" />
-                              Featured
-                            </p>
-                            <p className="mt-2 text-[16px] font-medium text-ink">
-                              {featuredProduct.title}
-                            </p>
-                            <p className="mt-1 max-w-md text-[13px] leading-relaxed text-ink-mute">
-                              {featuredProduct.desc}
-                            </p>
-                            <p className="mt-3 inline-flex items-center gap-1.5 text-[13px] font-medium text-ink transition-colors duration-150 group-hover:text-primary">
-                              See it in action
-                              <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                            </p>
-                          </motion.a>
-
-                          {productItems.map((it, i) => (
-                            <DropdownItem
-                              key={it.title}
-                              item={it}
-                              index={i}
-                              onNavigate={navigate}
-                            />
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-[1.15fr_1fr] gap-1">
-                          <div className="flex flex-col">
-                            {resourcesItems.map((it, i) => (
-                              <DropdownItem
-                                key={it.title}
-                                item={it}
-                                index={i}
-                                onNavigate={navigate}
-                              />
-                            ))}
-                          </div>
-                          {/* Featured article */}
-                          <motion.a
-                            href={featuredArticle.href}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              navigate("#solutions");
-                            }}
-                            initial={{ opacity: 0, y: 12 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                            className="group relative flex flex-col justify-between rounded-md border border-hairline bg-canvas-soft p-5 transition-colors duration-150 hover:bg-canvas-night hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
-                          >
-                            <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-on-primary">
-                              {featuredArticle.tag}
-                            </span>
-                            <p className="mt-4 text-[15px] font-medium leading-snug text-ink">
-                              {featuredArticle.title}
-                            </p>
-                            <span className="mt-3 flex items-center gap-2 text-xs text-ink-mute">
-                              <BookOpen className="size-3.5" />
-                              {featuredArticle.minute}
-                              <span className="ml-auto inline-flex items-center gap-1 text-ink transition-colors group-hover:text-primary">
-                                Read
-                                <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                              </span>
-                            </span>
-                          </motion.a>
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
               </div>
             ) : (
               <Link
@@ -825,6 +872,56 @@ export default function Header() {
           </Link>
         </div>
       </nav>
+
+      {/* ────────────────────────────────────────────────────────── */}
+      {/* Shared dropdown container — single mounted shell            */}
+      {/* ────────────────────────────────────────────────────────── */}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            ref={dropdownRef}
+            id="desktop-dropdown"
+            role="dialog"
+            aria-label={open === "product" ? "Product menu" : "Resources menu"}
+            onMouseEnter={onDropdownMouseEnter}
+            onMouseLeave={onDropdownMouseLeave}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={open ? openTransition : closeTransition}
+            style={{
+              top: panelRect?.top ?? "calc(100% + 10px)",
+              left: panelRect?.left ?? 0,
+            }}
+            className={panelCls}
+          >
+            <AnimatePresence mode="popLayout" initial={false}>
+              {open === "product" && (
+                <motion.div
+                  key="product"
+                  initial={{ opacity: 0, x: direction === "left" ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction === "left" ? -20 : 20 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <ProductContent onNavigate={navigate} />
+                </motion.div>
+              )}
+              {open === "resources" && (
+                <motion.div
+                  key="resources"
+                  initial={{ opacity: 0, x: direction === "left" ? 20 : -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: direction === "left" ? -20 : 20 }}
+                  transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <ResourcesContent onNavigate={navigate} />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Mobile slide-in menu */}
       <MobileMenu

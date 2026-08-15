@@ -9,13 +9,13 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Maya Chen",
     handle: "@mayachen",
-    text: "Landing a job at a top agency finally, and honestly? This site did half the talking. I typed in my projects, and it turned them into a story interviewers could actually follow. I didn't lose a single candidate because of a messy website.",
+    text: "Landing a job at a top agency finally, and honestly? This site did half the talking. I typed in my projects, and it turned them into a story interviewers could actually follow.",
     avatar: "MC",
   },
   {
     name: "Jordan Teo",
     handle: "@jordanteo",
-    text: "The analytics are embarrassingly good. I can see which case study recruiters open, how long they stay, and what makes them leave. I rewrote my whole intro in an hour based on real data, twice, and both times my response rate jumped.",
+    text: "The analytics are embarrassingly good. I can see which case study recruiters open, how long they stay, and what makes them leave. ",
     avatar: "JT",
   },
   {
@@ -27,19 +27,19 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Diego Luna",
     handle: "@diegoluna",
-    text: "Started on a Sunday night before an interview on Wednesday. The template shipped my domain, SSL, and analytics all at once. My interviewer called the site 'the cleanest they'd seen that week.' I got the offer.",
+    text: "Started on a Sunday night before an interview on Wednesday. The template shipped my domain, SSL, and analytics all at once. ",
     avatar: "DL",
   },
   {
     name: "Priya Nair",
     handle: "@priyanair",
-    text: "I've tried building my own portfolio five times over the years and abandoned every version. Folioforge did in an afternoon what I kept failing to do myself — a real layout, real copy, real polish. I published the same day and haven't looked back.",
+    text: "I've tried building my own portfolio five times over the years and abandoned every version. Profilio did in an afternoon what I kept failing to do myself.",
     avatar: "PN",
   },
   {
     name: "Tomás Vidal",
     handle: "@tomasvidal",
-    text: "Moved our whole studio from three separate portfolios to one workspace on Folioforge. Live co-editing meant the design lead and I could shape a project page together in real time. Easiest tooling decision we've made this year.",
+    text: "Moved our whole studio from three separate portfolios to one workspace on Profilio.",
     avatar: "TV",
   },
   {
@@ -51,13 +51,13 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Omar Haddad",
     handle: "@omarhaddad",
-    text: "The sketch-to-portfolio flow is genuinely unreal. I drew a wireframe on a napkin during lunch, came back, and it had turned into a working layout with a real grid and type scale. I tweaked a few things and published before dinner.",
+    text: "The sketch-to-portfolio flow is genuinely unreal. I drew a wireframe on a napkin during lunch, came back, and it had turned into a working layout with a real grid and type scale. ",
     avatar: "OH",
   },
   {
     name: "Lena Fischer",
     handle: "@lenafischer",
-    text: "SE O, sitemap, Open Graph images, proper meta — all handled automatically. My portfolio was indexed by Google in under a day. One client found me through the site and booked a full brand project.",
+    text: "SE O, sitemap, Open Graph images, proper meta — all handled automatically. My portfolio was indexed by Google in under a day.",
     avatar: "LF",
   },
   {
@@ -69,7 +69,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Hana Kim",
     handle: "@hanakim",
-    text: "Client-proof links with expiry dates are the sleeper feature. I can send a clean, on-brand version of my work to a prospective client, watch them open it, and close the meeting before they ever ask for a deck. It quietly does all the closing for me.",
+    text: "Client-proof links with expiry dates are the sleeper feature.",
     avatar: "HK",
   },
   {
@@ -81,13 +81,13 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Zoe Laurent",
     handle: "@zoelaurent",
-    text: "What finally sold me was the motion language. Every theme ships with real hover states, transitions, and scroll behaviors — nothing feels like a default template. It looks like a designer spent weeks on it, because it's built like one.",
+    text: "What finally sold me was the motion language. Every theme ships with real hover states, transitions, and scroll behaviors.",
     avatar: "ZL",
   },
   {
     name: "Kofi Mensah",
     handle: "@kofimensah",
-    text: "I'm a developer by day, so I was skeptical of any drag-and-drop builder. But the fact that I can publish case studies from markdown in GitHub changes everything. It fits the workflow I already have, and it's fast.",
+    text: "I'm a developer by day, so I was skeptical of any drag-and-drop builder. But the fact that I can publish case studies",
     avatar: "KM",
   },
   {
@@ -99,7 +99,7 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Leo Fontaine",
     handle: "@leofontaine",
-    text: "The heatmaps show exactly which project gets scrolled. I redesigned my homepage around the project that was getting the most attention — and within two weeks I had more inbound work than I could take. Designing around real data feels almost unfair.",
+    text: "The heatmaps show exactly which project gets scrolled. I redesigned my homepage around the project that was getting the most attentio.",
     avatar: "LF2",
   },
   {
@@ -189,37 +189,37 @@ export const TESTIMONIALS: Testimonial[] = [
   {
     name: "Isabel Marlow",
     handle: "@isamarlow",
-    text: "As a freelancer, I need clean HTML exports for client handoff. Folioforge gives me that plus a live portfolio, plus the confidence to charge more because my site finally looks like my work. It genuinely pays for itself every single week.",
+    text: "As a freelancer, I need clean HTML exports for client handoff. Profilio gives me that plus a live portfolio.",
     avatar: "IM",
   },
   {
     name: "Dmitri Volkov",
     handle: "@dmitrivk",
-    text: "We run five studio portfolios from one seat. SSO for the whole team, shared brand kits so nothing ever drifts off-brand, and themes we can reuse across client projects. It scales in ways I didn't expect.",
+    text: "We run five studio portfolios from one seat. SSO for the whole team, shared brand kits so nothing ever drifts off-brand.",
     avatar: "DV",
   },
   {
     name: "Chloe Adebayo",
     handle: "@chloeade",
-    text: "I'd not had the first clue what to say about myself. The personality questionnaire changed how I pitch myself entirely — and a recruiter mentioned it in the first interview. You cannot buy that.",
+    text: "I'd not had the first clue what to say about myself. The personality questionnaire changed how I pitch myself entirely.",
     avatar: "CA",
   },
   {
     name: "Evan Park",
     handle: "@evanpark",
-    text: "Every keystroke restyles the whole site in real time. I expected a janky preview. I got a live, production-quality canvas. It's the fastest iterative design loop I've ever used.",
+    text: "Every keystroke restyles the whole site in real time. I expected a janky preview. I got a live, production-quality canvas. ",
     avatar: "EP",
   },
   {
     name: "Marta Sokol",
     handle: "@martasokol",
-    text: "I went freelance in March. Published a services page in Folioforge Tuesday. Signed my first retainer the following Monday.",
+    text: "I went freelance in March. Published a services page in Profilio Tuesday. Signed my first retainer the following Monday.",
     avatar: "MS",
   },
   {
     name: "Ben Almeida",
     handle: "@benalmeida",
-    text: "The API is clean enough that I serve my portfolio headless and the marketing site through the CMS. I get the editorial power of Folioforge with the freedom of my own stack.",
+    text: "The API is clean enough that I serve my portfolio headless and the marketing site through the CMS. I get the editorial power of Profilio with the freedom of my own stack.",
     avatar: "BA",
   },
 ];
