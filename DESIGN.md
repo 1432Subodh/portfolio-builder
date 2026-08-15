@@ -4,33 +4,24 @@ name: Supabaze-design-analysis
 description: An inspired interpretation of Supabaze's design language — an open-source database platform built on a clean white-and-near-black system with a single signature emerald-green CTA, a custom humanist sans display tier, and dense product UI mockups composited above the hero. The brand reads as quietly technical: minimal chrome, a near-monochrome palette, and the green primary acting as the only chromatic event on the page.
 
 colors:
-  primary: "#3ecf8e"
-  primary-deep: "#24b47e"
-  primary-soft: "#4ade80"
-  ink: "#171717"
-  ink-secondary: "#212121"
-  ink-mute: "#707070"
-  ink-mute-2: "#9a9a9a"
-  ink-faint: "#b2b2b2"
-  on-primary: "#171717"
-  on-dark: "#ffffff"
-  canvas: "#ffffff"
-  canvas-soft: "#fafafa"
-  canvas-night: "#1c1c1c"
-  canvas-night-soft: "#202020"
-  hairline: "#dfdfdf"
-  hairline-strong: "#c7c7c7"
-  hairline-cool: "#ededed"
-  hairline-cool-2: "#efefef"
-  hairline-cool-3: "#d4d4d4"
-  accent-purple: "#6b01c2"
-  accent-violet: "#644fc1"
-  accent-purple-soft: "#eddbf9"
-  accent-yellow: "#ffdb13"
-  accent-tomato: "#ff2201"
-  accent-pink: "#c7007e"
-  accent-indigo: "#054cff"
-  accent-crimson: "#e2005a"
+  --background: #121214;
+  --foreground: #f5f5f4;
+  --primary: #006239;
+  --primary-deep: #057748;
+  --on-primary: #f5f5f4;
+  --ink: #f5f5f4;
+  --ink-2: #e8e8e7;
+  --ink-mute: #a3a3a3;
+  --ink-mute-2: #737373;
+  --ink-faint: #525252;
+  --canvas: #18181b;
+  --canvas-soft: #1c1c1e;
+  --canvas-night: #0d0d0f;
+  --canvas-night-soft: #202023;
+  --hairline: #2a2a2e;
+  --hairline-strong: #3f3f46;
+  --hairline-cool: #26262a;
+  --hairline-cool-3: #3a3a40;
 
 typography:
   display-xxl:

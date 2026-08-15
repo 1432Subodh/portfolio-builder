@@ -57,7 +57,7 @@ export default function Pricing() {
 
   return (
     <section id="pricing" className="relative scroll-mt-24 py-14 sm:py-16 border-b">
-      <div
+      {/* <div
         aria-hidden
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_45%_at_50%_50%,rgba(62,207,142,0.08),transparent_70%)]"
       />
@@ -65,7 +65,7 @@ export default function Pricing() {
       <div
         aria-hidden
         className="pointer-events-none absolute left-1/2 top-1/2 size-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(62,207,142,0.06),transparent_65%)] blur-2xl"
-      />
+      /> */}
       <div className="mx-auto max-w-[1280px] px-4 sm:px-6 lg:px-8">
         <SectionHeading
           eyebrow="Pricing"
@@ -96,7 +96,7 @@ export default function Pricing() {
             <motion.span
               layout
               transition={{ type: "spring", stiffness: 500, damping: 32 }}
-              className={`absolute top-0.5 size-6 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.4)] ${yearly ? "left-[22px] bg-[#121214]" : "left-0.5 bg-ink border border-hairline-strong"
+              className={`absolute top-0.5 size-6 rounded-full shadow-[0_1px_3px_rgba(0,0,0,0.4)] ${yearly ? "left-[22px] bg-background" : "left-0.5 bg-ink border border-hairline-strong"
                 }`}
             />
           </button>
@@ -104,7 +104,7 @@ export default function Pricing() {
             className={`text-sm font-medium transition-colors ${yearly ? "text-ink" : "text-ink-mute-2"}`}
           >
             Yearly
-            <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-ink">
+            <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-[11px] font-semibold text-on-primary">
               2 months free
             </span>
           </span>
@@ -115,12 +115,12 @@ export default function Pricing() {
             <Reveal key={plan.name} delay={i * 0.06} className="h-full">
               <div
                 className={`relative flex h-full flex-col rounded-lg p-8 ${plan.popular
-                  ? "border border-primary/30 bg-canvas-night-soft text-white shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
+                  ? "border border-primary/30 bg-[#17171a] text-white shadow-[0_16px_48px_rgba(0,0,0,0.6)]"
                   : "border border-hairline bg-canvas-soft elev-1"
                   }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-8 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-[#121214] px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink elev-1">
+                  <span className="absolute -top-3 left-8 inline-flex items-center gap-1.5 rounded-full border border-primary/40 bg-canvas-night px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-ink elev-1">
                     <Sparkles className="size-3 text-primary" />
                     Most popular
                   </span>
@@ -155,7 +155,7 @@ export default function Pricing() {
                   href="#pricing"
                   onClick={(e) => e.preventDefault()}
                   className={`group mt-7 inline-flex items-center justify-center gap-2 rounded-md px-5 py-2.5 text-[14px] font-medium transition-colors duration-150 focus-visible:outline-2 focus-visible:outline-white ${plan.popular
-                    ? "bg-primary text-ink hover:bg-primary-deep"
+                    ? "bg-primary text-on-primary hover:bg-primary-deep"
                     : "border border-hairline-strong bg-canvas-soft text-ink hover:bg-white/[0.05]"
                     }`}
                 >
@@ -167,7 +167,7 @@ export default function Pricing() {
                   {plan.features.map((f) => (
                     <li key={f} className={`flex items-start gap-2.5 text-[13.5px] ${plan.popular ? "text-white/70" : "text-ink-mute"}`}>
                       <span
-                        className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full ${plan.popular ? "bg-primary text-ink" : "bg-canvas text-primary border border-primary/40"
+                        className={`mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full ${plan.popular ? "bg-primary text-on-primary" : "bg-canvas text-primary border border-primary/40"
                           }`}
                       >
                         <Check className="size-3" />

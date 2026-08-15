@@ -11,10 +11,10 @@ export default function TestimonialCard({ name, handle, text }: Testimonial) {
   const avatarUrl = `https://i.pravatar.cc/300?u=${encodeURIComponent(handle)}`;
 
   return (
-    <article className="break-inside-avoid rounded-2xl p-6 border border-white/[0.06] bg-[#17171a] p-4 transition-all duration-300 hover:border-white/[0.23] hover:shadow-[0_0_18px_rgba(62,207,142,0.14)] cursor-pointer">
+    <article className="break-inside-avoid rounded-2xl p-6 border border-hairline bg-canvas-soft p-4 transition-all duration-300 hover:border-hairline-strong hover:shadow-[0_0_18px_rgba(62,207,142,0.14)] cursor-pointer">
       <div className="flex items-center gap-2">
         <div className="relative size-8 shrink-0">
-          <span className="flex size-8 items-center justify-center overflow-hidden rounded-full border border-white/[0.08] bg-white/[0.05]">
+          <span className="flex size-8 items-center justify-center overflow-hidden rounded-full border border-hairline-strong bg-canvas">
             <Image
               src={avatarUrl}
               alt={`Avatar of ${name}`}
@@ -25,14 +25,14 @@ export default function TestimonialCard({ name, handle, text }: Testimonial) {
           </span>
           <span
             aria-hidden
-            className="absolute -left-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full border border-white/[0.12] bg-[#1e1e21] text-white/80 shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
+            className="absolute -left-1.5 -top-1.5 flex size-5 items-center justify-center rounded-full border border-hairline-strong bg-canvas-night-soft text-ink-mute shadow-[0_2px_6px_rgba(0,0,0,0.5)]"
           >
             <XIcon className="size-2.5" />
           </span>
         </div>
-        <p className="min-w-0 truncate text-[13px] font-medium text-white/85">{handle}</p>
+        <p className="min-w-0 truncate text-[13px] font-medium text-ink">{handle}</p>
       </div>
-      <p className="mt-3 text-[15px] leading-relaxed text-white/55">{text}</p>
+      <p className="mt-3 text-[15px] leading-relaxed text-ink-mute">{text}</p>
     </article>
   );
 }

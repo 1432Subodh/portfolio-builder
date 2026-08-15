@@ -118,7 +118,7 @@ export default function Templates() {
                     aria-pressed={isActive}
                     className={`relative flex items-center gap-2 rounded-md px-3 py-2.5 text-[13px] font-medium transition-all duration-200 focus-visible:outline-2 focus-visible:outline-white sm:px-3.5 sm:py-2 ${
                       isActive
-                        ? "text-ink"
+                        ? "text-on-primary"
                         : "text-ink-mute hover:bg-white/[0.04] hover:text-ink"
                     }`}
                   >

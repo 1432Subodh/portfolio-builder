@@ -557,7 +557,7 @@ export default function Solutions() {
                           .querySelector("#pricing")
                           ?.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
                       }}
-                      className="group/cta mt-4 inline-flex w-fit items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-ink transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-white"
+                      className="group/cta mt-4 inline-flex w-fit items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-[13px] font-medium text-on-primary transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-white"
                     >
                       {active.cta}
                       <ArrowRight className="size-4 transition-transform duration-300 group-hover/cta:translate-x-1" />

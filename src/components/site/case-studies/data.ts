@@ -4,7 +4,7 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 1,
     company: "Aperture",
-    logo: "/logos/1.png",
+    logo: "/logos/5.png",
     description: "Design studio · San Francisco",
     testimonial:
       "We shipped client portfolios in days, not weeks. The AI layout engine understood our visual language from the first prompt.",
@@ -56,7 +56,7 @@ export const caseStudies: CaseStudy[] = [
   {
     id: 5,
     company: "Eclipse Labs",
-    logo: "/logos/5.png",
+    logo: "/logos/1.png",
     description: "Deep-tech startup",
     testimonial:
       "We embedded live demos straight into our story pages. Investors land on a single link and already understand the product.",

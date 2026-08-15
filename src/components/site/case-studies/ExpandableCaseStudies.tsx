@@ -137,6 +137,7 @@ export default function ExpandableCaseStudies({
   const scrollerRef = useRef<HTMLDivElement>(null);
 
   const touchY = useRef<number | null>(null);
+  const lastProgScroll = useRef(0);
 
   useEffect(() => {
     if (paused || reduce) return;
@@ -147,26 +148,27 @@ export default function ExpandableCaseStudies({
     return () => clearInterval(id);
   }, [paused, reduce, items.length]);
 
+  const scrollToIndex = (i: number, el: HTMLDivElement | null) => {
+    const target = el?.children[i] as HTMLElement | undefined;
+    if (!el || !target) return;
+    el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
+    lastProgScroll.current = Date.now();
+  };
+
   useEffect(() => {
-    const el = scrollerRef.current;
-    const target = el?.children[activeIndex] as HTMLElement | undefined;
-    if (el && target) {
-      el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
-    }
+    scrollToIndex(activeIndex, scrollerRef.current);
   }, [activeIndex]);
 
   const goTo = (i: number) => {
     setActiveIndex(i);
-    const el = scrollerRef.current;
-    const target = el?.children[i] as HTMLElement | undefined;
-    if (el && target) {
-      el.scrollTo({ left: target.offsetLeft, behavior: "smooth" });
-    }
+    scrollToIndex(i, scrollerRef.current);
   };
 
   const handleScroll = () => {
     const el = scrollerRef.current;
     if (!el || el.children.length === 0) return;
+    /* ignore programmatic smooth-scrolls so auto-advance isn't clobbered */
+    if (Date.now() - lastProgScroll.current < 600) return;
     const card = el.children[0] as HTMLElement;
     const step = card.offsetWidth + SWIPE_GAP;
     const next = Math.round(el.scrollLeft / step);

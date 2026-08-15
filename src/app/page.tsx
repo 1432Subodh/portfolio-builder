@@ -5,7 +5,7 @@ import Footer from "@/components/site/Footer";
 
 export default function Home() {
   return (
-    <main>
+    <main className="overflow-hidden">
       <Header />
       <Hero />
 

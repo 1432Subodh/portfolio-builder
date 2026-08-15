@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import {
   ArrowRight,
@@ -110,9 +111,9 @@ const navItems: (
   { label: "Pricing", type: "link", href: "#pricing" },
 ];
 
-/* Dropdown panel — dark canvas, hairline, elevation 2 */
+/* Dropdown panel base — position comes from JS-clamped trigger rect */
 const panelCls =
-  "absolute left-1/2 top-[calc(100%+10px)] -translate-x-1/2 w-[min(680px,calc(100vw-32px))] origin-top rounded-lg border border-hairline bg-canvas-night p-3 elev-3";
+  "fixed origin-top w-[min(680px,calc(100vw-32px))] rounded-lg border border-hairline bg-canvas-night p-3 elev-3";
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -151,7 +152,7 @@ function DropdownItem({ item, index, onNavigate }: {
         <span className="flex items-center gap-2 text-sm font-medium text-ink">
           {item.title}
           {item.tag && (
-            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-ink">
+            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-on-primary">
               {item.tag}
             </span>
           )}
@@ -165,16 +166,374 @@ function DropdownItem({ item, index, onNavigate }: {
 }
 
 /* ------------------------------------------------------------------ */
+/* Mobile slide-in menu                                                */
+/* ------------------------------------------------------------------ */
+
+const listVariants = {
+  hidden: {},
+  show: {
+    transition: { staggerChildren: 0.055, delayChildren: 0.18 },
+  },
+};
+
+const listItemVariants = {
+  hidden: { opacity: 0, x: 28 },
+  show: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
+/* Animated hamburger: menu icon morphs into an X */
+function Hamburger({ open }: { open: boolean }) {
+  return (
+    <span className="relative block size-5">
+      <AnimatePresence mode="wait" initial={false}>
+        {open ? (
+          <motion.span
+            key="x"
+            initial={{ rotate: -90, opacity: 0, scale: 0.5 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: 90, opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <X className="size-5" />
+          </motion.span>
+        ) : (
+          <motion.span
+            key="menu"
+            initial={{ rotate: 90, opacity: 0, scale: 0.5 }}
+            animate={{ rotate: 0, opacity: 1, scale: 1 }}
+            exit={{ rotate: -90, opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <Menu className="size-5" />
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </span>
+  );
+}
+
+function MobileLinkRow({ item, onNavigate }: {
+  item: { label: string; type: "link"; href: string };
+  onNavigate: (href: string) => void;
+}) {
+  return (
+    <motion.a
+      href={item.href}
+      onClick={(e) => {
+        e.preventDefault();
+        onNavigate(item.href);
+      }}
+      variants={listItemVariants}
+      className="group flex items-center justify-between rounded-xl px-4 py-4 transition-colors duration-150 hover:bg-white/[0.04]"
+    >
+      <span className="flex items-center gap-3">
+        <span className="flex size-8 items-center justify-center rounded-lg bg-canvas-soft text-ink-mute transition-colors duration-150 group-hover:bg-primary/15 group-hover:text-primary">
+          <ArrowRight className="size-4 -rotate-45" />
+        </span>
+        <span className="text-[15px] font-medium tracking-tight text-ink">{item.label}</span>
+      </span>
+    </motion.a>
+  );
+}
+
+/* Expandable group inside the drawer (Product / Resources) */
+function MobileGroup({ def, open, onToggle, onNavigate }: {
+  def: { key: Exclude<OpenMenu, null>; label: string; icon: React.ComponentType<{ className?: string }> };
+  open: boolean;
+  onToggle: () => void;
+  onNavigate: (href: string) => void;
+}) {
+  const Icon = def.icon;
+  const items = def.key === "product" ? productItems : resourcesItems;
+  return (
+    <div className="px-2">
+      <motion.button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        variants={listItemVariants}
+        className="group flex w-full items-center justify-between rounded-xl px-2 py-4 text-left transition-colors duration-150 hover:bg-white/[0.04]"
+      >
+        <span className="flex items-center gap-3">
+          <span className="flex size-8 items-center justify-center rounded-lg bg-canvas-soft text-ink-mute transition-colors duration-150 group-hover:bg-primary/15 group-hover:text-primary">
+            <Icon className="size-4" />
+          </span>
+          <span className="text-[15px] font-medium tracking-tight text-ink">{def.label}</span>
+        </span>
+        <motion.span
+          animate={{ rotate: open ? 180 : 0 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className="flex size-6 items-center justify-center rounded-full text-ink-mute"
+        >
+          <ChevronDown className="size-4" />
+        </motion.span>
+      </motion.button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="content"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              initial="hidden"
+              animate="show"
+              exit="hidden"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
+              className="ml-5 border-l border-hairline pl-3 pb-3"
+            >
+              {items.map((it) => {
+                return (
+                  <motion.a
+                    key={it.title}
+                    href={it.href}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onNavigate(it.href);
+                    }}
+                    variants={{
+                      hidden: { opacity: 0, x: 12 },
+                      show: {
+                        opacity: 1,
+                        x: 0,
+                        transition: { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const },
+                      },
+                    }}
+                    className="group flex items-center gap-2 rounded-md px-3 py-2.5 text-sm text-ink-mute transition-colors duration-150 hover:bg-white/[0.04] hover:text-ink"
+                  >
+                    <span className="size-1 rounded-full bg-ink-faint transition-colors duration-150 group-hover:bg-primary" />
+                    <span>
+                      {it.title}
+                      {it.tag && (
+                        <span className="ml-2 rounded-full bg-primary/15 px-1.5 py-px text-[10px] font-semibold uppercase tracking-wide text-primary">
+                          {it.tag}
+                        </span>
+                      )}
+                    </span>
+                  </motion.a>
+                );
+              })}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* Theme switcher: system / light / dark */
+function MobileMenu({ open, onClose, onNavigate, reduce }: {
+  open: boolean;
+  onClose: () => void;
+  onNavigate: (href: string) => void;
+  reduce: boolean | null;
+}) {
+  const [expanded, setExpanded] = useState<Exclude<OpenMenu, null>>("product");
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+  const closeAndNav = (href: string) => {
+    onClose();
+    onNavigate(href);
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            key="backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={onClose}
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm"
+            aria-hidden="true"
+          />
+
+          {/* Sliding drawer */}
+          <motion.aside
+            key="drawer"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation"
+            initial={{ x: "100%" }}
+            animate={{ x: 0, transition: { duration: reduce ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] } }}
+            exit={{ x: "100%", transition: { duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] } }}
+            className="fixed inset-y-0 right-0 z-[70] flex w-full max-w-sm flex-col overflow-hidden border-l border-hairline bg-canvas-night sm:max-w-[400px]"
+          >
+            {/* Layered glow */}
+            <div className="pointer-events-none absolute -right-20 -top-20 z-[1] size-72 rounded-full bg-primary/20 blur-[100px]" />
+            <div className="pointer-events-none absolute -left-24 top-1/3 z-[1] size-56 rounded-full bg-primary/10 blur-[80px]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 z-[1] h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+
+            {/* Drawer header */}
+            <div className="relative z-[2] flex h-16 shrink-0 items-center justify-between border-b border-hairline px-4 sm:px-5">
+              <Link
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  closeAndNav("#hero");
+                }}
+                className="focus-visible:outline-2 focus-visible:outline-primary"
+                aria-label="Folioforge home"
+              >
+                <span className="inline-flex items-center gap-2">
+                  <span className="flex size-7 items-center justify-center rounded-md border border-hairline-strong bg-canvas-soft">
+                    <Sparkles className="size-4 text-primary" />
+                  </span>
+                  <span className="text-[17px] font-medium tracking-tight text-ink">
+                    Folioforge
+                  </span>
+                </span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close menu"
+                className="flex size-10 items-center justify-center rounded-full text-ink transition-all duration-150 hover:rotate-90 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+              >
+                <Hamburger open />
+              </button>
+            </div>
+
+            {/* Nav */}
+            <motion.nav
+              key="nav"
+              initial="hidden"
+              animate="show"
+              variants={listVariants}
+              aria-label="Mobile"
+              className="relative z-[2] flex-1 overflow-y-auto py-4 no-scrollbar"
+            >
+              <p className="mb-1 px-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-faint">
+                Menu
+              </p>
+
+              {navItems.map((item) =>
+                item.type === "dropdown" ? (
+                  <MobileGroup
+                    key={item.key}
+                    def={{
+                      key: item.key ?? "product",
+                      label: item.label,
+                      icon: item.key === "product" ? LayoutTemplate : BookOpen,
+                    }}
+                    open={expanded === item.key}
+                    onToggle={() =>
+                      setExpanded((prev) =>
+                        prev === item.key ? "product" : (item.key ?? "product"),
+                      )
+                    }
+                    onNavigate={closeAndNav}
+                  />
+                ) : (
+                  <MobileLinkRow
+                    key={item.label}
+                    item={item}
+                    onNavigate={closeAndNav}
+                  />
+                ),
+              )}
+
+              {/* Featured card */}
+              <motion.div
+                variants={listItemVariants}
+                className="px-4 pt-6"
+              >
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink-faint">
+                  Spotlight
+                </p>
+                <a
+                  href={featuredProduct.href}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    closeAndNav("#features");
+                  }}
+                  className="group relative block overflow-hidden rounded-xl border border-hairline bg-gradient-to-br from-canvas-soft to-canvas-night p-4 transition-colors duration-150 hover:border-primary/40"
+                >
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-primary">
+                    <Sparkles className="size-3" />
+                    Featured
+                  </p>
+                  <p className="mt-1.5 text-[16px] font-medium tracking-tight text-ink">
+                    {featuredProduct.title}
+                  </p>
+                  <p className="mt-1 text-[13px] leading-relaxed text-ink-mute">
+                    {featuredProduct.desc}
+                  </p>
+                  <p className="mt-3 inline-flex items-center gap-1 text-[13px] font-semibold text-ink transition-colors group-hover:text-primary">
+                    See it in action
+                    <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                  </p>
+                </a>
+              </motion.div>
+            </motion.nav>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0, transition: { delay: 0.35, duration: 0.4, ease: [0.22, 1, 0.36, 1] } }}
+              exit={{ opacity: 0, transition: { duration: 0.15 } }}
+              className="relative z-[2] shrink-0 space-y-2 border-t border-hairline p-4 sm:p-5"
+            >
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/signup"
+                  onClick={onClose}
+                  className="group flex items-center justify-center gap-1 rounded-xl bg-primary px-3 py-3 text-sm font-medium text-on-primary transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  Get Started
+                  <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                </Link>
+                <Link
+                  href="/signin"
+                  onClick={onClose}
+                  className="flex items-center justify-center rounded-xl border border-hairline-strong bg-canvas-soft px-3 py-3 text-sm font-medium text-ink transition-colors duration-150 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+                >
+                  Sign In
+                </Link>
+              </div>
+            </motion.div>
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ------------------------------------------------------------------ */
 /* Header                                                             */
 /* ------------------------------------------------------------------ */
 
 export default function Header() {
   const [open, setOpen] = useState<OpenMenu>(null);
-  const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [panelRect, setPanelRect] = useState<{ top: number; left: number } | null>(null);
   const headerRef = useRef<HTMLElement>(null);
   const reduce = useReducedMotion();
-  const menuId = useId();
+  const router = useRouter();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -184,10 +543,14 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
-    const close = () => setOpen(null);
+    const close = () => {
+      setOpen(null);
+      setPanelRect(null);
+    };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(null);
+        setPanelRect(null);
         setMobileOpen(false);
       }
     };
@@ -206,13 +569,60 @@ export default function Header() {
     };
   }, []);
 
+  /* Clamp the dropdown panel inside the viewport, centered on its trigger */
+  useEffect(() => {
+    if (!open || !panelRect) return;
+    const onResize = () => {
+      const btn = document.getElementById(`menu-trigger-${open}`);
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      const panelW = Math.min(680, window.innerWidth - 32);
+      const left = Math.min(
+        Math.max(r.left + r.width / 2 - panelW / 2, 8),
+        window.innerWidth - panelW - 8,
+      );
+      setPanelRect({ top: r.bottom + 10, left });
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [open, panelRect]);
+
+  /* Close the mobile drawer when switching to desktop breakpoint */
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const onResize = () => {
+      if (window.innerWidth >= 1024) setMobileOpen(false);
+    };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [mobileOpen]);
+
   const navigate = (href: string) => {
     setOpen(null);
+    setPanelRect(null);
     setMobileOpen(false);
     if (href.startsWith("#")) {
       const el = document.querySelector(href);
-      if (el) el.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+      if (el) {
+        el.scrollIntoView({ behavior: reduce ? "auto" : "smooth" });
+        return;
+      }
+      // Anchor lives on the landing page — go home and let the hash scroll it.
+      router.push("/" + href);
     }
+  };
+
+  const openMenu = (key: OpenMenu) => {
+    setOpen(key);
+    const btn = document.getElementById(`menu-trigger-${key}`);
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const panelW = Math.min(680, window.innerWidth - 32);
+    const left = Math.min(
+      Math.max(r.left + r.width / 2 - panelW / 2, 8),
+      window.innerWidth - panelW - 8,
+    );
+    setPanelRect({ top: r.bottom + 10, left });
   };
 
   const transition = { duration: 0.3, ease: [0.22, 1, 0.36, 1] as const };
@@ -220,8 +630,11 @@ export default function Header() {
   return (
     <header
       ref={headerRef}
-      onMouseLeave={() => setOpen(null)}
-      className={`fixed inset-x-0 top-0 z-50 bg-[#121214] transition-all duration-300 ${
+      onMouseLeave={() => {
+        setOpen(null);
+        setPanelRect(null);
+      }}
+      className={`fixed inset-x-0 top-0 z-50 overflow-x-clip bg-background transition-all duration-300 w-[100vw] ${
         scrolled ? "border-b border-hairline elev-1" : "border-b border-hairline-cool"
       }`}
     >
@@ -231,7 +644,7 @@ export default function Header() {
       >
         {/* Logo */}
         <Link
-          href="#"
+          href="/"
           onClick={(e) => {
             e.preventDefault();
             navigate("#hero");
@@ -250,16 +663,16 @@ export default function Header() {
         </Link>
 
         {/* Desktop nav */}
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="relative hidden items-center gap-1 lg:flex">
           {navItems.map((item) =>
             item.type === "dropdown" ? (
               <div
                 key={item.key}
-                onMouseEnter={() => setOpen(item.key)}
-                className="relative"
+                onMouseEnter={() => openMenu(item.key)}
               >
                 <button
                   type="button"
+                  id={`menu-trigger-${item.key}`}
                   aria-expanded={open === item.key}
                   aria-controls={`menu-${item.key}`}
                   className="flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary"
@@ -278,6 +691,10 @@ export default function Header() {
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -8, scale: 0.98 }}
                       transition={transition}
+                      style={{
+                        top: panelRect?.top ?? "calc(100% + 10px)",
+                        left: panelRect?.left ?? 0,
+                      }}
                       className={panelCls}
                     >
                       {item.key === "product" ? (
@@ -343,7 +760,7 @@ export default function Header() {
                             transition={{ delay: 0.1, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                             className="group relative flex flex-col justify-between rounded-md border border-hairline bg-canvas-soft p-5 transition-colors duration-150 hover:bg-canvas-night hover:border-hairline-strong focus-visible:outline-2 focus-visible:outline-white"
                           >
-                            <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-ink">
+                            <span className="w-fit rounded-full bg-primary px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-on-primary">
                               {featuredArticle.tag}
                             </span>
                             <p className="mt-4 text-[15px] font-medium leading-snug text-ink">
@@ -381,103 +798,41 @@ export default function Header() {
         </div>
 
         {/* CTAs */}
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="flex items-center gap-2">
+          {/* Mobile hamburger */}
+          <button
+            type="button"
+            onClick={() => setMobileOpen(true)}
+            aria-label="Open menu"
+            aria-expanded={mobileOpen}
+            className="flex size-10 items-center justify-center rounded-md  text-ink transition-colors duration-150 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary lg:hidden"
+          >
+            <Hamburger open={mobileOpen} />
+          </button>
+
           <Link
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("#pricing");
-            }}
-            className="rounded-md px-2 py-1 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary border border-hairline-strong"
+            href="/signin"
+            className="hidden rounded-md px-2 py-1 text-sm font-medium text-ink-mute transition-colors duration-150 hover:text-ink focus-visible:outline-2 focus-visible:outline-primary border border-hairline-strong sm:block"
           >
             Sign In
           </Link>
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              navigate("#pricing");
-            }}
-            className="group inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1 text-sm  text-ink transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary border border-hairline-strong"
+          <Link
+            href="/signup"
+            className="group hidden items-center gap-1.5 rounded-md bg-primary px-3 py-1 text-sm  text-on-primary transition-colors duration-150 hover:bg-primary-deep focus-visible:outline-2 focus-visible:outline-primary border border-hairline-strong lg:inline-flex"
           >
             Get Started
             <ArrowRight className="size-4 transition-transform duration-300 group-hover:translate-x-0.5" />
-          </a>
+          </Link>
         </div>
-
-        {/* Mobile toggle */}
-        <button
-          type="button"
-          onClick={() => setMobileOpen((v) => !v)}
-          aria-expanded={mobileOpen}
-          aria-label="Toggle navigation menu"
-          aria-controls={`menu-${menuId}`}
-            className="inline-flex size-10 items-center justify-center rounded-md text-ink transition-colors hover:bg-white/[0.04] lg:hidden focus-visible:outline-2 focus-visible:outline-white"
-        >
-          {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-        </button>
       </nav>
 
-      {/* Mobile menu */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            id={`menu-${menuId}`}
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.25, ease: "easeOut" }}
-            className="border-b border-hairline bg-[#121214] lg:hidden"
-          >
-            <div className="space-y-1 px-4 py-4">
-              {navItems.map((item) =>
-                item.type === "dropdown" ? (
-                  <div key={item.key}>
-                    <button
-                      type="button"
-                      onClick={() => navigate(`#${item.key === "product" ? "features" : "how-it-works"}`)}
-                      className="flex w-full items-center justify-between rounded-md px-3 py-2.5 text-sm font-medium text-ink hover:bg-white/[0.04]"
-                    >
-                      {item.label}
-                      <span className="text-ink-mute">
-                        {item.key === "product" ? "Templates" : "Guides"}
-                      </span>
-                    </button>
-                  </div>
-                ) : (
-                  <Link
-                    key={item.label}
-                    href={item.href ?? "#"}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigate(item.href ?? "#");
-                    }}
-                    className="block rounded-md px-3 py-2.5 text-sm font-medium text-ink hover:bg-white/[0.04]"
-                  >
-                    {item.label}
-                  </Link>
-                )
-              )}
-              <div className="flex gap-3 pt-3">
-                <button
-                  type="button"
-                  onClick={() => navigate("#pricing")}
-                  className="flex-1 rounded-md border border-hairline-strong px-4 py-2.5 text-sm font-medium text-ink hover:bg-white/[0.04]"
-                >
-                  Sign In
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navigate("#pricing")}
-                  className="flex-1 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-ink hover:bg-primary-deep"
-                >
-                  Get Started
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Mobile slide-in menu */}
+      <MobileMenu
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        onNavigate={navigate}
+        reduce={reduce}
+      />
     </header>
   );
 }

@@ -1,5 +1,18 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { Check, Laptop, Moon, Sparkles, Sun } from "lucide-react";
+import { useTheme } from "@/components/site/ThemeProvider";
+
+type ThemeValue = "system" | "light" | "dark";
+
+const themeOptions: { value: ThemeValue; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { value: "system", label: "System", icon: Laptop },
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+];
 
 const groups: { title: string; links: string[] }[] = [
   { title: "Product", links: ["Templates", "AI Studio", "Domains", "Analytics", "Pricing"] },
@@ -39,6 +52,84 @@ const socials = [
   { icon: DribbbleIcon, label: "Dribbble" },
   { icon: LinkedinIcon, label: "LinkedIn" },
 ];
+
+function ThemeSelect() {
+  const { theme, setTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const current = themeOptions.find((o) => o.value === theme) ?? themeOptions[0];
+  const CurrentIcon = current.icon;
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (e: PointerEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-label={`Theme: ${current.label}`}
+        className="flex size-8 items-center justify-center rounded-md border border-hairline-strong bg-canvas text-ink-mute transition-colors duration-200 hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+      >
+        <CurrentIcon className="size-3.5" />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -6, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute bottom-full right-0 mb-2 w-36 overflow-hidden rounded-lg border border-hairline bg-canvas-night p-1 elev-3"
+          >
+            {themeOptions.map((o) => {
+              const Icon = o.icon;
+              const active = theme === o.value;
+              return (
+                <button
+                  key={o.value}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={active}
+                  onClick={() => {
+                    setTheme(o.value);
+                    setOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-[13px] transition-colors duration-150 ${
+                    active
+                      ? "bg-primary/15 text-primary"
+                      : "text-ink-mute hover:bg-white/[0.05] hover:text-ink"
+                  }`}
+                >
+                  <Icon className="size-3.5" />
+                  <span className="flex-1 text-left font-medium">{o.label}</span>
+                  {active && <Check className="size-3.5" />}
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 export default function Footer() {
   return (
@@ -98,9 +189,11 @@ export default function Footer() {
           <p className="text-[12.5px] text-ink-mute">
             © {new Date().getFullYear()} Folioforge Labs, Inc. All rights reserved.
           </p>
-          <p className="text-[12.5px] text-ink-mute">
-            Made in Berlin &amp; Toronto · 99.99% uptime
-          </p>
+
+          <div className="flex items-center gap-4">
+            <ThemeSelect />
+            
+          </div>
         </div>
       </div>
     </footer>

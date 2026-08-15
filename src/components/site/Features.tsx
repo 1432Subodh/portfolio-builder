@@ -139,7 +139,7 @@ export default function Features() {
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.94 }}
-                  className="flex size-9 items-center justify-center rounded-md bg-primary text-ink transition-colors hover:bg-primary-deep"
+                  className="flex size-9 items-center justify-center rounded-md bg-primary text-on-primary transition-colors hover:bg-primary-deep"
                   aria-label="Generate with AI"
                 >
                   <Rocket className="size-4" />
