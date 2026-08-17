@@ -117,7 +117,7 @@ const navItems: (
 /* ------------------------------------------------------------------ */
 
 const panelCls =
-  "fixed origin-top w-[min(680px,calc(100vw-32px))] rounded-lg border border-hairline bg-canvas-night  elev-3 z-50";
+  "fixed origin-top w-[min(680px,calc(100vw-32px))] overflow-hidden rounded-lg border border-hairline bg-canvas-night  elev-3 z-50";
 
 function Chevron({ open }: { open: boolean }) {
   return (
@@ -164,7 +164,7 @@ function Logo({ className = "size-7" }: { className?: string }) {
 
 function ProductContent({ onNavigate }: { onNavigate: (href: string) => void }) {
   return (
-    <div className="flex flex-col gap-1 overflow-hidden">
+    <div className="flex flex-col gap-1 ">
       <motion.a
         href={featuredProduct.href}
         onClick={(e) => {
@@ -205,7 +205,7 @@ function ProductContent({ onNavigate }: { onNavigate: (href: string) => void }) 
 
 function ResourcesContent({ onNavigate }: { onNavigate: (href: string) => void }) {
   return (
-    <div className="grid grid-cols-[1.15fr_1fr] gap-1 overflow-hidden">
+    <div className="grid grid-cols-[1.15fr_1fr] gap-1">
       <div className="flex flex-col p-1">
         {resourcesItems.map((it, i) => (
           <DropdownItem
@@ -256,7 +256,7 @@ function DropdownItem({ item, index, onNavigate }: {
         e.preventDefault();
         onNavigate(item.href);
       }}
-      className="group flex items-start gap-3 rounded-md p-3 transition-colors duration-150 hover:bg-white/[0.04] focus-visible:outline-2 focus-visible:outline-white"
+      className="group flex items-start gap-3 rounded-md p-3 transition-colors duration-150 hover:bg-white/[0.04] dark:hover:bg-black/[0.03] focus-visible:outline-2 focus-visible:outline-white"
     >
       <span className="mt-0.5 flex size-9 shrink-0 items-center justify-center rounded-md border border-hairline bg-canvas-soft text-ink-mute transition-colors duration-150 group-hover:border-primary/60 group-hover:text-primary">
         <Icon className="size-4.5" />

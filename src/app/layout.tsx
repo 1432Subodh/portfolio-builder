@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
-import Script from "next/script";
 import { ThemeProvider } from "@/components/site/ThemeProvider";
+import AuthProvider from "@/components/auth/AuthProvider";
+import ThemeScript from "@/components/ThemeScript";
 import "./globals.css";
 
 const inter = Inter({
@@ -22,8 +23,6 @@ export const metadata: Metadata = {
   },
 };
 
-const themeScript = `(function(){try{var c=document.cookie.match(/(?:^|; )Profilio-theme=([^;]*)/);var t=c?decodeURIComponent(c[1]):null;if(!t)t=localStorage.getItem("Profilio-theme");var theme=t&&["light","dark","system"].includes(t)?t:"system";var resolved=theme==="system"?(matchMedia("(prefers-color-scheme: light)").matches?"light":"dark"):theme;document.documentElement.dataset.theme=resolved;}catch(e){var fallback=matchMedia && matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";document.documentElement.dataset.theme=fallback;}})();`;
-
 async function getServerTheme(): Promise<"light" | "dark" | null> {
   try {
     const c = await cookies();
@@ -42,15 +41,11 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       data-theme={theme ?? undefined}
       className={`${inter.variable} h-full antialiased`}
     >
-      <head>
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: themeScript }}
-        />
-      </head>
       <body className="min-h-full flex-col">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeScript />
+        <AuthProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -89,21 +89,19 @@ export default function AnimatedPanel({ mode }: { mode: "signin" | "signup" }) {
       {/* ---------- top bar ---------- */}
       <div className="relative z-30 flex w-full items-start justify-between p-7">
         <motion.span
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          
           className="inline-flex items-center gap-2"
         >
           <Image
-            src="/logo/logo-dark.png"
-            alt="Profilio"
-            width={28}
-            height={28}
-            className="size-7 rounded-lg"
-          />
-          <span className="text-[13px] font-medium tracking-tight text-white">
-            Profilio
-          </span>
+                  src="/logo/logo-dark.png"
+                  alt="Profilio"
+                  width={512}
+                  height={512}
+                  quality={50}
+                  className={`rounded-md object-contain w-[140px] h-[50px]`}
+                  suppressHydrationWarning
+                />
+          
         </motion.span>
       </div>
 

@@ -39,7 +39,7 @@ export default function AuthLayout({ mode }: { mode: "signin" | "signup" }) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-canvas-soft px-2.5 py-1 text-[10.5px] font-medium text-ink-mute"
+            className="inline-flex items-center gap-1.5 rounded-full border border-hairline bg-canvas px-2.5 py-1 text-[10.5px] font-medium text-ink-mute"
           >
             {isSignin ? "Welcome back" : "Join 40k+ builders"}
           </motion.div>
@@ -50,7 +50,7 @@ export default function AuthLayout({ mode }: { mode: "signin" | "signup" }) {
             transition={{ duration: 0.5, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="mt-4 text-balance text-[28px] font-medium leading-[1.2] tracking-[-0.02em] text-ink sm:text-[32px]"
           >
-            {isSignin ? "Yooo, welcome back!" : "Start building, free"}
+            {isSignin ? "Welcome back!" : "Start building, free"}
           </motion.h1>
 
           <motion.p
@@ -60,15 +60,12 @@ export default function AuthLayout({ mode }: { mode: "signin" | "signup" }) {
             className="mt-2 text-[13.5px] leading-relaxed text-ink-mute"
           >
             {isSignin
-              ? "Publish in minutes. Your drafts and domains are right where you left them."
+              ? "Enter email & password to continue."
               : "No card required. A portfolio that gets you hired in minutes."}
           </motion.p>
 
           <AuthForm
             mode={mode}
-            onEnter={(fields) => {
-              void fields;
-            }}
           />
         </div>
       </div>
