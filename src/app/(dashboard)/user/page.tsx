@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "motion/react";
 import {
   ArrowUpRight,
@@ -28,30 +28,15 @@ import {
   analyticsData,
   portfolioHealth,
 } from "@/lib/mock-data";
-
-interface Project {
-  _id: string;
-  name: string;
-  slug: string;
-  published: boolean;
-  updatedAt: string;
-}
+import {
+  useGetProjectsQuery,
+  type Project,
+} from "@/lib/redux/api/projectsApi";
 
 export default function UserDashboard() {
   const { data: session } = useSession();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: projects = [], isLoading } = useGetProjectsQuery();
   const [analyticsView, setAnalyticsView] = useState<"views" | "visitors">("views");
-
-  useEffect(() => {
-    fetch("/api/projects")
-      .then((r) => r.json())
-      .then((data) => {
-        setProjects(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
 
   const userName = session?.user?.name?.split(" ")[0] || "there";
 
@@ -295,7 +280,7 @@ export default function UserDashboard() {
           </Link>
         </div>
 
-        {loading ? (
+        {isLoading ? (
           <div className="masonry-grid">
             {[1, 2, 3].map((i) => (
               <div key={i} className="masonry-item">

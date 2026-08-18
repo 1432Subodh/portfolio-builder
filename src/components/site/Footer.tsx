@@ -40,11 +40,11 @@ function FooterLogo({ className = "size-7" }: { className?: string }) {
   );
 }
 
-const groups: { title: string; links: string[] }[] = [
-  { title: "Product", links: ["Templates", "AI Studio", "Domains", "Analytics", "Pricing"] },
-  { title: "Resources", links: ["Documentation", "Tutorials", "Blog", "Community", "Changelog"] },
-  { title: "Company", links: ["About", "Careers", "Press kit", "Contact", "Status"] },
-  { title: "Legal", links: ["Privacy", "Terms", "DPA", "Cookie policy"] },
+const groups: { title: string; links: { label: string; href?: string }[] }[] = [
+  { title: "Product", links: ["Templates", "AI Studio", "Domains", "Analytics", "Pricing"].map((label) => ({ label })) },
+  { title: "Resources", links: ["Documentation", "Tutorials", "Blog", "Community", "Changelog"].map((label) => ({ label })) },
+  { title: "Company", links: ["About", "Careers", "Press kit", "Contact", "Status"].map((label) => ({ label })) },
+  { title: "Admin", links: [{ label: "Admin Login", href: "/admin/login" }] },
 ];
 
 const XIcon = ({ className }: { className?: string }) => (
@@ -193,13 +193,22 @@ export default function Footer() {
               </h4>
               <ul className="mt-4 space-y-2.5">
                 {g.links.map((l) => (
-                  <li key={l}>
-                    <a
-                      href="#"
-                      className="text-[14px] text-ink-mute transition-colors duration-200 hover:text-ink"
-                    >
-                      {l}
-                    </a>
+                  <li key={l.label}>
+                    {l.href ? (
+                      <Link
+                        href={l.href}
+                        className="text-[14px] text-ink-mute transition-colors duration-200 hover:text-ink"
+                      >
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href="#"
+                        className="text-[14px] text-ink-mute transition-colors duration-200 hover:text-ink"
+                      >
+                        {l.label}
+                      </a>
+                    )}
                   </li>
                 ))}
               </ul>

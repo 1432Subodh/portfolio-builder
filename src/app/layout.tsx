@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { cookies } from "next/headers";
 import { ThemeProvider } from "@/components/site/ThemeProvider";
 import AuthProvider from "@/components/auth/AuthProvider";
+import ReduxProvider from "@/components/redux/ReduxProvider";
 import ThemeScript from "@/components/ThemeScript";
 import "./globals.css";
 
@@ -44,7 +45,9 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex-col">
         <ThemeScript />
         <AuthProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ReduxProvider>
+            <ThemeProvider>{children}</ThemeProvider>
+          </ReduxProvider>
         </AuthProvider>
       </body>
     </html>

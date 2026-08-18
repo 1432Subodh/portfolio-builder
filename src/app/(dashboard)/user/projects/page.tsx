@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus,
@@ -13,37 +13,20 @@ import {
   Search,
   Filter,
 } from "lucide-react";
-
-interface Project {
-  _id: string;
-  name: string;
-  slug: string;
-  template: string;
-  published: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+import {
+  useGetProjectsQuery,
+  useDeleteProjectMutation,
+} from "@/lib/redux/api/projectsApi";
 
 export default function ProjectsPage() {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: projects = [], isLoading } = useGetProjectsQuery();
+  const [deleteProject] = useDeleteProjectMutation();
   const [showMenu, setShowMenu] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    fetch("/api/projects")
-      .then((r) => r.json())
-      .then((data) => {
-        setProjects(Array.isArray(data) ? data : []);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
-
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     if (!confirm("Are you sure you want to delete this project?")) return;
-    await fetch(`/api/projects/${id}`, { method: "DELETE" });
-    setProjects((prev) => prev.filter((p) => p._id !== id));
+    deleteProject(id);
     setShowMenu(null);
   };
 
@@ -96,7 +79,7 @@ export default function ProjectsPage() {
       </motion.div>
 
       {/* Content */}
-      {loading ? (
+      {isLoading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="h-16 animate-pulse rounded-xl bg-white/[0.03]" />

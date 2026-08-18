@@ -20,6 +20,7 @@ import {
   Copy,
   PanelRightClose,
 } from "lucide-react";
+import { Dropdown } from "@/components/ui/Dropdown";
 
 function PropertyGroup({
   title,
@@ -100,17 +101,7 @@ function Select({
   options: { label: string; value: string }[];
 }) {
   return (
-    <select
-      value={value}
-      onChange={(e) => onChange(e.target.value)}
-      className="w-full min-w-0 bg-editor-panel border border-editor-border-strong rounded px-2 py-1 text-[11px] text-editor-text outline-none focus:border-editor-text-faint transition-colors appearance-none cursor-pointer"
-    >
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
+    <Dropdown compact value={value} onChange={onChange} options={options} />
   );
 }
 
