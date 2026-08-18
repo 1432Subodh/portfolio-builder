@@ -17,20 +17,53 @@ export function EditorShell() {
   const isMobile = useIsMobile();
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
+  const [rightPanelWidth, setRightPanelWidth] = useState(280);
+  const [resizingRightPanel, setResizingRightPanel] = useState(false);
 
   // Close sidebars on mobile when viewport changes
   useEffect(() => {
-    if (isMobile) {
-      setLeftOpen(false);
-      setRightOpen(false);
-    } else {
-      setLeftOpen(true);
-      setRightOpen(true);
-    }
+    const timer = window.setTimeout(() => {
+      if (isMobile) {
+        setLeftOpen(false);
+        setRightOpen(false);
+      } else {
+        setLeftOpen(true);
+        setRightOpen(true);
+      }
+    }, 0);
+
+    return () => window.clearTimeout(timer);
   }, [isMobile]);
 
   const toggleLeft = useCallback(() => setLeftOpen((p) => !p), []);
   const toggleRight = useCallback(() => setRightOpen((p) => !p), []);
+
+  const startRightPanelResize = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setResizingRightPanel(true);
+  }, []);
+
+  useEffect(() => {
+    if (!resizingRightPanel) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const nextWidth = window.innerWidth - e.clientX;
+      setRightPanelWidth(Math.min(520, Math.max(240, nextWidth)));
+    };
+    const stopResize = () => setResizingRightPanel(false);
+
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopResize);
+
+    return () => {
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", stopResize);
+    };
+  }, [resizingRightPanel]);
 
   return (
     <EditorProvider>
@@ -78,14 +111,27 @@ export function EditorShell() {
 
           {/* Right Panel */}
           <div
-            className={`${
+            style={
+              isMobile
+                ? undefined
+                : { width: rightOpen ? rightPanelWidth : 0 }
+            }
+            className={`relative ${
               isMobile
                 ? `fixed right-0 top-11 bottom-8 z-40 transition-transform duration-200 ${
                     rightOpen ? "translate-x-0" : "translate-x-full"
                   }`
-                : `transition-all duration-200 ${rightOpen ? "w-56" : "w-0"}`
+                : `${resizingRightPanel ? "" : "transition-[width] duration-200"}`
             }`}
           >
+            {!isMobile && rightOpen && (
+              <button
+                type="button"
+                aria-label="Resize right panel"
+                onMouseDown={startRightPanelResize}
+                className="absolute left-0 top-0 z-50 h-full w-1.5 -translate-x-1/2 cursor-col-resize bg-transparent transition-colors hover:bg-editor-accent/40"
+              />
+            )}
             <RightPanel isMobile={isMobile} onClose={toggleRight} />
           </div>
 

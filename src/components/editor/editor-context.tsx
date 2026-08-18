@@ -2,24 +2,18 @@
 
 import {
   createContext,
-  useCallback,
   useContext,
   useReducer,
   type ReactNode,
 } from "react";
-import type { EditorAction, EditorState, EditorSection } from "./types";
+import type {
+  EditorAction,
+  EditorHistorySnapshot,
+  EditorState,
+  EditorSection,
+} from "./types";
 
-const defaultSections: EditorSection[] = [
-  { id: "navbar", name: "Navbar", type: "navbar", visible: true, locked: false },
-  { id: "hero", name: "Hero", type: "hero", visible: true, locked: false },
-  { id: "about", name: "About", type: "about", visible: true, locked: false },
-  { id: "skills", name: "Skills", type: "skills", visible: true, locked: false },
-  { id: "projects", name: "Projects", type: "projects", visible: true, locked: false },
-  { id: "experience", name: "Experience", type: "experience", visible: true, locked: false },
-  { id: "testimonials", name: "Testimonials", type: "testimonials", visible: true, locked: false },
-  { id: "contact", name: "Contact", type: "contact", visible: true, locked: false },
-  { id: "footer", name: "Footer", type: "footer", visible: true, locked: false },
-];
+const defaultSections: EditorSection[] = [];
 
 const initialState: EditorState = {
   selectedSectionId: null,
@@ -39,9 +33,140 @@ const initialState: EditorState = {
   commandPaletteOpen: false,
   contextMenu: null,
   breadcrumb: ["Home"],
+  past: [],
+  future: [],
 };
 
+const maxHistory = 80;
+
+function cloneRecord(value: Record<string, unknown> | undefined) {
+  return value ? JSON.parse(JSON.stringify(value)) as Record<string, unknown> : {};
+}
+
+function cloneSections(sections: EditorSection[]) {
+  return sections.map((section) => ({
+    ...section,
+    content: cloneRecord(section.content),
+    theme: cloneRecord(section.theme),
+    initialContent: cloneRecord(section.initialContent),
+    initialTheme: cloneRecord(section.initialTheme),
+  }));
+}
+
+function makeSnapshot(state: EditorState): EditorHistorySnapshot {
+  return {
+    selectedSectionId: state.selectedSectionId,
+    sections: cloneSections(state.sections),
+    saveStatus: state.saveStatus,
+    breadcrumb: [...state.breadcrumb],
+  };
+}
+
+function restoreSnapshot(
+  state: EditorState,
+  snapshot: EditorHistorySnapshot
+): EditorState {
+  return {
+    ...state,
+    selectedSectionId: snapshot.selectedSectionId,
+    sections: cloneSections(snapshot.sections),
+    saveStatus: snapshot.saveStatus,
+    breadcrumb: [...snapshot.breadcrumb],
+    contextMenu: null,
+  };
+}
+
+function isHistoryAction(action: EditorAction) {
+  return [
+    "TOGGLE_VISIBILITY",
+    "TOGGLE_LOCK",
+    "REORDER_SECTIONS",
+    "DELETE_SECTION",
+    "DUPLICATE_SECTION",
+    "RESET_SECTION",
+    "RENAME_SECTION",
+    "UPDATE_SECTION_CONTENT",
+    "UPDATE_SECTION_CONTENT_PATH",
+    "UPDATE_SECTION_THEME",
+    "UPDATE_SECTION_THEME_PATH",
+    "ADD_SECTION",
+  ].includes(action.type);
+}
+
+function setNestedValue(
+  source: unknown,
+  path: string[],
+  value: unknown
+): unknown {
+  if (path.length === 0) return source;
+  const [head, ...tail] = path;
+  if (!head) return source;
+
+  if (Array.isArray(source)) {
+    const index = Number(head);
+    if (!Number.isInteger(index) || index < 0) return source;
+    const next = [...source];
+    next[index] =
+      tail.length === 0
+        ? value
+        : setNestedValue(next[index] ?? {}, tail, value);
+    return next;
+  }
+
+  const record =
+    source && typeof source === "object" && !Array.isArray(source)
+      ? (source as Record<string, unknown>)
+      : {};
+
+  if (tail.length === 0) {
+    return { ...record, [head]: value };
+  }
+
+  const current = record[head];
+  return {
+    ...record,
+    [head]: setNestedValue(
+      current ?? {},
+      tail,
+      value
+    ),
+  };
+}
+
 function editorReducer(state: EditorState, action: EditorAction): EditorState {
+  if (action.type === "UNDO") {
+    const previous = state.past.at(-1);
+    if (!previous) return state;
+    return {
+      ...restoreSnapshot(state, previous),
+      past: state.past.slice(0, -1),
+      future: [makeSnapshot(state), ...state.future].slice(0, maxHistory),
+    };
+  }
+
+  if (action.type === "REDO") {
+    const next = state.future[0];
+    if (!next) return state;
+    return {
+      ...restoreSnapshot(state, next),
+      past: [...state.past, makeSnapshot(state)].slice(-maxHistory),
+      future: state.future.slice(1),
+    };
+  }
+
+  const before = isHistoryAction(action) ? makeSnapshot(state) : null;
+  const nextState = reduceEditorState(state, action);
+
+  if (!before || nextState === state) return nextState;
+
+  return {
+    ...nextState,
+    past: [...state.past, before].slice(-maxHistory),
+    future: [],
+  };
+}
+
+function reduceEditorState(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
     case "SELECT_SECTION": {
       const section = state.sections.find((s) => s.id === action.sectionId);
@@ -127,11 +252,91 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
       next.splice(idx + 1, 0, copy);
       return { ...state, sections: next };
     }
+    case "RESET_SECTION":
+      return {
+        ...state,
+        saveStatus: "unsaved",
+        sections: state.sections.map((s) =>
+          s.id === action.sectionId
+            ? {
+                ...s,
+                content: cloneRecord(s.initialContent ?? s.content),
+                theme: cloneRecord(s.initialTheme ?? s.theme),
+              }
+            : s
+        ),
+      };
     case "RENAME_SECTION":
       return {
         ...state,
         sections: state.sections.map((s) =>
           s.id === action.sectionId ? { ...s, name: action.name } : s
+        ),
+      };
+    case "UPDATE_SECTION_CONTENT":
+      return {
+        ...state,
+        saveStatus: "unsaved",
+        sections: state.sections.map((s) =>
+          s.id === action.sectionId
+            ? {
+                ...s,
+                content: {
+                  ...(s.content ?? {}),
+                  [action.key]: action.value,
+                },
+              }
+            : s
+        ),
+      };
+    case "UPDATE_SECTION_CONTENT_PATH":
+      return {
+        ...state,
+        saveStatus: "unsaved",
+        sections: state.sections.map((s) =>
+          s.id === action.sectionId
+            ? {
+                ...s,
+                content: setNestedValue(
+                  s.content ?? {},
+                  action.path,
+                  action.value
+                ) as Record<string, unknown>,
+              }
+            : s
+        ),
+      };
+    case "UPDATE_SECTION_THEME":
+      return {
+        ...state,
+        saveStatus: "unsaved",
+        sections: state.sections.map((s) =>
+          s.id === action.sectionId
+            ? {
+                ...s,
+                theme: {
+                  ...(s.theme ?? {}),
+                  [action.key]: action.value,
+                },
+              }
+            : s
+        ),
+      };
+    case "UPDATE_SECTION_THEME_PATH":
+      return {
+        ...state,
+        saveStatus: "unsaved",
+        sections: state.sections.map((s) =>
+          s.id === action.sectionId
+            ? {
+                ...s,
+                theme: setNestedValue(
+                  s.theme ?? {},
+                  action.path,
+                  action.value
+                ) as Record<string, unknown>,
+              }
+            : s
         ),
       };
     case "ADD_SECTION": {

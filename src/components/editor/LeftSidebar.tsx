@@ -5,19 +5,11 @@ import { useEditor } from "./editor-context";
 import type { SidebarTab } from "./types";
 import {
   Search,
-  Type,
-  AlignLeft,
-  FileText,
   MousePointerClick,
   Image,
   Video,
-  Sparkles,
-  Minus,
-  Maximize2,
   LayoutTemplate,
-  Box,
   Grid3x3,
-  AlignHorizontalSpaceAround,
   Columns3,
   RectangleHorizontal,
   Layers,
@@ -34,9 +26,6 @@ import {
   Mail,
   PenTool,
   Images,
-  GalleryHorizontalEnd,
-  Play,
-  Music,
   ChevronDown,
   ChevronRight,
   Eye,
@@ -46,16 +35,18 @@ import {
   GripVertical,
   LayoutList,
   Component,
-  Share2,
-  Globe,
-  Link,
 } from "lucide-react";
+import {
+  useGetEditorComponentsQuery,
+  type ComponentItem as DbComponentItem,
+} from "@/lib/redux/api/adminApi";
 
 interface ComponentItem {
   name: string;
   icon: React.ElementType;
   description: string;
   variants: number;
+  component?: DbComponentItem;
 }
 
 interface ComponentCategory {
@@ -63,77 +54,6 @@ interface ComponentCategory {
   icon: React.ElementType;
   items: ComponentItem[];
 }
-
-const componentLibrary: ComponentCategory[] = [
-  {
-    name: "Basic",
-    icon: Type,
-    items: [
-      { name: "Text", icon: Type, description: "Plain text block", variants: 1 },
-      { name: "Heading", icon: AlignLeft, description: "Section heading", variants: 6 },
-      { name: "Rich Text", icon: FileText, description: "Formatted text", variants: 1 },
-      { name: "Button", icon: MousePointerClick, description: "Clickable button", variants: 8 },
-      { name: "Link", icon: Link, description: "Inline link", variants: 3 },
-      { name: "Icon", icon: Sparkles, description: "Icon element", variants: 1 },
-      { name: "Divider", icon: Minus, description: "Horizontal line", variants: 3 },
-      { name: "Spacer", icon: Maximize2, description: "Empty space", variants: 1 },
-    ],
-  },
-  {
-    name: "Layout",
-    icon: LayoutTemplate,
-    items: [
-      { name: "Section", icon: LayoutTemplate, description: "Page section", variants: 4 },
-      { name: "Container", icon: Box, description: "Content container", variants: 3 },
-      { name: "Stack", icon: Layers, description: "Vertical stack", variants: 2 },
-      { name: "Grid", icon: Grid3x3, description: "Grid layout", variants: 4 },
-      { name: "Columns", icon: Columns3, description: "Multi-column", variants: 5 },
-      { name: "Flex", icon: AlignHorizontalSpaceAround, description: "Flex layout", variants: 3 },
-      { name: "Card", icon: RectangleHorizontal, description: "Card container", variants: 6 },
-      { name: "Group", icon: LayoutList, description: "Group elements", variants: 1 },
-    ],
-  },
-  {
-    name: "Portfolio",
-    icon: Rocket,
-    items: [
-      { name: "Hero", icon: Rocket, description: "Hero section", variants: 6 },
-      { name: "About", icon: User, description: "About section", variants: 4 },
-      { name: "Skills", icon: Wrench, description: "Skills showcase", variants: 5 },
-      { name: "Projects", icon: Briefcase, description: "Project gallery", variants: 6 },
-      { name: "Experience", icon: Building2, description: "Work history", variants: 3 },
-      { name: "Education", icon: GraduationCap, description: "Education info", variants: 2 },
-      { name: "Testimonials", icon: Quote, description: "Client quotes", variants: 4 },
-      { name: "Services", icon: Headphones, description: "Services offered", variants: 3 },
-      { name: "Certifications", icon: Award, description: "Certifications", variants: 2 },
-      { name: "Achievements", icon: Trophy, description: "Achievements", variants: 3 },
-      { name: "Contact", icon: Mail, description: "Contact form", variants: 4 },
-      { name: "Blog", icon: PenTool, description: "Blog posts", variants: 3 },
-    ],
-  },
-  {
-    name: "Media",
-    icon: Images,
-    items: [
-      { name: "Image", icon: Image, description: "Image element", variants: 4 },
-      { name: "Video", icon: Video, description: "Video player", variants: 3 },
-      { name: "Gallery", icon: Images, description: "Image gallery", variants: 5 },
-      { name: "Carousel", icon: GalleryHorizontalEnd, description: "Image carousel", variants: 3 },
-      { name: "Lottie", icon: Play, description: "Lottie animation", variants: 1 },
-      { name: "Audio", icon: Music, description: "Audio player", variants: 2 },
-    ],
-  },
-  {
-    name: "Social",
-    icon: Share2,
-    items: [
-      { name: "Social Links", icon: Share2, description: "Social media links", variants: 4 },
-      { name: "GitHub", icon: Globe, description: "GitHub profile", variants: 1 },
-      { name: "LinkedIn", icon: Globe, description: "LinkedIn profile", variants: 1 },
-      { name: "Dribbble", icon: Globe, description: "Dribbble profile", variants: 1 },
-    ],
-  },
-];
 
 function CategorySection({
   category,
@@ -144,9 +64,33 @@ function CategorySection({
   searchQuery: string;
   defaultOpen?: boolean;
 }) {
+  const { dispatch } = useEditor();
   const [open, setOpen] = useState(defaultOpen);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [hoverRect, setHoverRect] = useState<DOMRect | null>(null);
+
+  const addComponent = useCallback(
+    (item: ComponentItem) => {
+      const component = item.component;
+      const type = component?.type || item.name.toLowerCase();
+      dispatch({
+        type: "ADD_SECTION",
+        section: {
+          id: `${component?.componentSlug ?? type}-${Date.now()}`,
+          name: component?.name ?? item.name,
+          type,
+          componentSlug: component?.componentSlug,
+          content: component?.content ?? {},
+          theme: component?.theme ?? {},
+          initialContent: component?.content ?? {},
+          initialTheme: component?.theme ?? {},
+          visible: true,
+          locked: false,
+        },
+      });
+    },
+    [dispatch]
+  );
 
   const filteredItems = useMemo(() => {
     if (!searchQuery) return category.items;
@@ -215,6 +159,7 @@ function CategorySection({
                 </div>
                 <button
                   draggable
+                  onClick={() => addComponent(item)}
                   className="flex items-center gap-1.5 w-full pl-2.5 pr-1 py-[3px] rounded text-[11px] text-editor-text-muted hover:text-editor-text hover:bg-editor-hover transition-colors group cursor-grab active:cursor-grabbing"
                 >
                   <ItemIcon className="w-3 h-3 shrink-0 text-editor-text-faint group-hover:text-editor-text-2 transition-colors" />
@@ -295,11 +240,10 @@ function LayersPanel() {
 
       {/* Layer list */}
       <div className="flex-1 overflow-y-auto py-1">
-        {state.sections.map((section, index) => {
+        {state.sections.map((section) => {
           const isSelected = state.selectedSectionId === section.id;
           const isHovered = state.hoveredSectionId === section.id;
           const SectionIcon = sectionIcons[section.name] || Layers;
-          const isLast = index === state.sections.length - 1;
 
           return (
             <div
@@ -407,6 +351,55 @@ export function LeftSidebar({
 }) {
   const { state, dispatch } = useEditor();
   const [searchQuery, setSearchQuery] = useState("");
+  const { data: dbComponents = [], isLoading } = useGetEditorComponentsQuery();
+
+  const dynamicLibrary = useMemo<ComponentCategory[]>(() => {
+    const iconByType: Record<string, React.ElementType> = {
+      header: LayoutList,
+      hero: Rocket,
+      about: User,
+      skills: Wrench,
+      experience: Building2,
+      projects: Briefcase,
+      testimonials: Quote,
+      services: Headphones,
+      contact: Mail,
+      footer: Layers,
+      image: Image,
+      video: Video,
+      gallery: Images,
+      button: MousePointerClick,
+      section: LayoutTemplate,
+      grid: Grid3x3,
+      columns: Columns3,
+      card: RectangleHorizontal,
+    };
+    const grouped = new Map<string, ComponentCategory>();
+
+    dbComponents
+      .filter((component) => component.isActive)
+      .forEach((component) => {
+        const categoryName = component.category?.name ?? "Uploaded";
+        const category: ComponentCategory =
+          grouped.get(categoryName) ??
+          {
+            name: categoryName,
+            icon: LayoutTemplate,
+            items: [] as ComponentItem[],
+          };
+        const type = component.type ?? "";
+        category.items.push({
+          name: component.name,
+          icon: iconByType[type] ?? Component,
+          description: component.description || component.componentSlug || "Uploaded component",
+          variants: 1,
+          component,
+        });
+        grouped.set(categoryName, category);
+      });
+
+    return Array.from(grouped.values());
+  }, [dbComponents]);
 
   const handleTabChange = useCallback(
     (tab: SidebarTab) => {
@@ -467,7 +460,17 @@ export function LeftSidebar({
 
           {/* Component categories */}
           <div className="flex-1 overflow-y-auto overflow-x-clip editor-scrollbar">
-            {componentLibrary.map((category, index) => (
+            {isLoading && (
+              <div className="px-3 py-2 text-[10px] text-editor-text-ghost">
+                Loading uploaded components...
+              </div>
+            )}
+            {!isLoading && dynamicLibrary.length === 0 && (
+              <div className="px-3 py-8 text-center text-[11px] leading-relaxed text-editor-text-ghost">
+                No uploaded components yet. Add active components from admin.
+              </div>
+            )}
+            {dynamicLibrary.map((category, index) => (
               <CategorySection
                 key={category.name}
                 category={category}

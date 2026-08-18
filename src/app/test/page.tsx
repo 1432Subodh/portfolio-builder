@@ -1,10 +1,10 @@
-import Hero from '@/components/design/minimal/HeroMinimal'
+import NavbarMinimal from '@/components/design/minimal/NavbarMinimal'
 import React from 'react'
 
 function page() {
   return (
     <>
-      <Hero/>
+      <NavbarMinimal/>
     </>
   )
 }

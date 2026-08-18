@@ -1,9 +1,11 @@
 // registry.tsx
 
-import Hero from "./minimal/HeroMinimal";
+import HeroMinimal from "./minimal/HeroMinimal";
+import NavbarMinimal from "./minimal/NavbarMinimal";
 
 const componentRegistry = {
-  "hero.minimal": Hero,
+  "hero-minimal": HeroMinimal,
+  "navbar-minimal": NavbarMinimal,
 };
 
 export default componentRegistry;

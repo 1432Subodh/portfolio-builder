@@ -9,8 +9,20 @@ export interface EditorSection {
   id: string;
   name: string;
   type: string;
+  componentSlug?: string;
+  content?: Record<string, unknown>;
+  theme?: Record<string, unknown>;
+  initialContent?: Record<string, unknown>;
+  initialTheme?: Record<string, unknown>;
   visible: boolean;
   locked: boolean;
+}
+
+export interface EditorHistorySnapshot {
+  selectedSectionId: string | null;
+  sections: EditorSection[];
+  saveStatus: SaveStatus;
+  breadcrumb: string[];
 }
 
 export interface EditorState {
@@ -31,6 +43,8 @@ export interface EditorState {
   commandPaletteOpen: boolean;
   contextMenu: { x: number; y: number; sectionId: string } | null;
   breadcrumb: string[];
+  past: EditorHistorySnapshot[];
+  future: EditorHistorySnapshot[];
 }
 
 export type EditorAction =
@@ -53,7 +67,34 @@ export type EditorAction =
   | { type: "TOGGLE_COMMAND_PALETTE" }
   | { type: "SHOW_CONTEXT_MENU"; x: number; y: number; sectionId: string }
   | { type: "HIDE_CONTEXT_MENU" }
+  | { type: "UNDO" }
+  | { type: "REDO" }
   | { type: "DELETE_SECTION"; sectionId: string }
   | { type: "DUPLICATE_SECTION"; sectionId: string }
+  | { type: "RESET_SECTION"; sectionId: string }
   | { type: "RENAME_SECTION"; sectionId: string; name: string }
+  | {
+      type: "UPDATE_SECTION_CONTENT";
+      sectionId: string;
+      key: string;
+      value: unknown;
+    }
+  | {
+      type: "UPDATE_SECTION_CONTENT_PATH";
+      sectionId: string;
+      path: string[];
+      value: unknown;
+    }
+  | {
+      type: "UPDATE_SECTION_THEME";
+      sectionId: string;
+      key: string;
+      value: unknown;
+    }
+  | {
+      type: "UPDATE_SECTION_THEME_PATH";
+      sectionId: string;
+      path: string[];
+      value: unknown;
+    }
   | { type: "ADD_SECTION"; section: EditorSection; afterId?: string };

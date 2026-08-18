@@ -287,6 +287,13 @@ export const adminApi = createApi({
         ...result.map((c) => ({ type: "Component" as const, id: c.id })),
       ],
     }),
+    getEditorComponents: builder.query<ComponentItem[], void>({
+      query: () => ({ url: "/components" }),
+      providesTags: (result = []) => [
+        { type: "Component", id: "LIST" },
+        ...result.map((c) => ({ type: "Component" as const, id: c.id })),
+      ],
+    }),
     createComponent: builder.mutation<ComponentItem, CreateComponentInput>({
       query: (body) => ({ url: "/admin/components", method: "POST", body }),
       async onQueryStarted(_body, { dispatch, queryFulfilled }) {
@@ -393,6 +400,7 @@ export const {
   useUpdateCategoryMutation,
   useDeleteCategoryMutation,
   useGetComponentsQuery,
+  useGetEditorComponentsQuery,
   useCreateComponentMutation,
   useUpdateComponentMutation,
   useDeleteComponentMutation,

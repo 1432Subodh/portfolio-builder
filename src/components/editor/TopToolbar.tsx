@@ -2,17 +2,12 @@
 
 import { useCallback, useState } from "react";
 import { useEditor } from "./editor-context";
-import type { DeviceMode, EditorMode } from "./types";
+import type { EditorMode } from "./types";
 import {
   ArrowLeft,
   Undo2,
   Redo2,
   Eye,
-  Monitor,
-  Tablet,
-  Smartphone,
-  Laptop,
-  Share2,
   Upload,
   Check,
   Loader2,
@@ -33,13 +28,6 @@ const editorModes: { id: EditorMode; label: string; icon: React.ElementType }[] 
   { id: "content", label: "Content", icon: Type },
   { id: "responsive", label: "Responsive", icon: SmartphoneIcon },
   { id: "animation", label: "Animation", icon: Wand2 },
-];
-
-const deviceModes: { id: DeviceMode; icon: React.ElementType; label: string }[] = [
-  { id: "desktop", icon: Monitor, label: "1440px" },
-  { id: "laptop", icon: Laptop, label: "1280px" },
-  { id: "tablet", icon: Tablet, label: "768px" },
-  { id: "mobile", icon: Smartphone, label: "390px" },
 ];
 
 interface TopToolbarProps {
@@ -161,13 +149,17 @@ export function TopToolbar({
             {/* Undo/Redo */}
             <div className="flex items-center gap-0.5">
               <button
-                className="flex items-center justify-center w-7 h-7 rounded-md text-editor-text-faint hover:text-editor-text hover:bg-editor-hover transition-colors"
+                onClick={() => dispatch({ type: "UNDO" })}
+                disabled={state.past.length === 0}
+                className="flex items-center justify-center w-7 h-7 rounded-md text-editor-text-faint hover:text-editor-text hover:bg-editor-hover transition-colors disabled:cursor-not-allowed disabled:opacity-35"
                 title="Undo (Ctrl+Z)"
               >
                 <Undo2 className="w-3.5 h-3.5" />
               </button>
               <button
-                className="flex items-center justify-center w-7 h-7 rounded-md text-editor-text-faint hover:text-editor-text hover:bg-editor-hover transition-colors"
+                onClick={() => dispatch({ type: "REDO" })}
+                disabled={state.future.length === 0}
+                className="flex items-center justify-center w-7 h-7 rounded-md text-editor-text-faint hover:text-editor-text hover:bg-editor-hover transition-colors disabled:cursor-not-allowed disabled:opacity-35"
                 title="Redo (Ctrl+Shift+Z)"
               >
                 <Redo2 className="w-3.5 h-3.5" />
