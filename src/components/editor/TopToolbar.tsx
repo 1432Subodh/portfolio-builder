@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useEditor } from "./editor-context";
 import type { EditorMode } from "./types";
 import {
@@ -18,9 +19,14 @@ import {
   SmartphoneIcon,
   Wand2,
   Search,
+  Pencil,
   PanelLeft,
   PanelRight,
 } from "lucide-react";
+import {
+  useGetProjectQuery,
+  useUpdateProjectMutation,
+} from "@/lib/redux/api/projectsApi";
 import Image from "next/image";
 
 const editorModes: { id: EditorMode; label: string; icon: React.ElementType }[] = [
@@ -31,6 +37,7 @@ const editorModes: { id: EditorMode; label: string; icon: React.ElementType }[] 
 ];
 
 interface TopToolbarProps {
+  projectId: string;
   isMobile: boolean;
   onToggleLeft: () => void;
   onToggleRight: () => void;
@@ -39,6 +46,7 @@ interface TopToolbarProps {
 }
 
 export function TopToolbar({
+  projectId,
   isMobile,
   onToggleLeft,
   onToggleRight,
@@ -46,16 +54,45 @@ export function TopToolbar({
   rightOpen,
 }: TopToolbarProps) {
   const { state, dispatch } = useEditor();
-  const [projectName, setProjectName] = useState("My Portfolio");
+  const { data: project } = useGetProjectQuery(projectId);
+  const [updateProject] = useUpdateProjectMutation();
+  const router = useRouter();
+  const [editingName, setEditingName] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
 
-  const handleSave = useCallback(() => {
+  const projectName = project?.name ?? "";
+
+  const handleSave = useCallback(async () => {
     dispatch({ type: "SET_SAVE_STATUS", status: "saving" });
-    setTimeout(() => {
+    try {
+      await updateProject({
+        id: projectId,
+        patch: { sections: state.sections },
+      }).unwrap();
       dispatch({ type: "SET_SAVE_STATUS", status: "saved" });
-    }, 1200);
-  }, [dispatch]);
+    } catch {
+      dispatch({ type: "SET_SAVE_STATUS", status: "unsaved" });
+    }
+  }, [dispatch, updateProject, projectId, state.sections]);
+
+  const startRename = () => {
+    setNameDraft(projectName);
+    setEditingName(true);
+  };
+
+  const commitRename = useCallback(async () => {
+    setEditingName(false);
+    const trimmed = nameDraft.trim();
+    if (!trimmed || trimmed === projectName) return;
+    try {
+      await updateProject({ id: projectId, patch: { name: trimmed } }).unwrap();
+    } catch {
+      // cache keeps the previous name on failure
+    }
+  }, [nameDraft, projectName, projectId, updateProject]);
 
   return (
+    <>
     <header className="h-11 flex items-center justify-between border-b border-editor-border bg-editor-bg px-2 shrink-0 z-50">
       {/* Left */}
       <div className="flex items-center gap-1.5 min-w-0 flex-1">
@@ -78,7 +115,11 @@ export function TopToolbar({
 
         {!isMobile && (
           <>
-            <button className="flex items-center justify-center w-7 h-7 rounded-md text-editor-text-muted hover:text-editor-text hover:bg-editor-hover transition-colors shrink-0">
+            <button
+              onClick={() => router.push("/user/projects")}
+              title="Back to projects"
+              className="flex items-center justify-center w-7 h-7 rounded-md text-editor-text-muted hover:text-editor-text hover:bg-editor-hover transition-colors shrink-0"
+            >
               <ArrowLeft className="w-4 h-4" />
             </button>
             <div className="w-px h-4 bg-editor-border shrink-0" />
@@ -89,11 +130,31 @@ export function TopToolbar({
           <div className="w-5 h-5  flex items-center justify-center shrink-0">
             <Image src={'/logo/clean-logo.png'} width={50} height={50} alt=""/>
           </div>
-          <input
-            value={projectName}
-            onChange={(e) => setProjectName(e.target.value)}
-            className="bg-transparent text-[13px] font-medium text-editor-text border-none outline-none w-[100px] md:w-[120px] truncate hover:bg-editor-hover focus:bg-editor-hover rounded px-1.5 py-0.5 transition-colors"
-          />
+          {editingName ? (
+            <input
+              autoFocus
+              value={nameDraft}
+              onChange={(e) => setNameDraft(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") e.currentTarget.blur();
+                if (e.key === "Escape") setEditingName(false);
+              }}
+              className="bg-editor-hover text-[13px] font-medium text-editor-text border border-editor-border-strong outline-none w-[120px] md:w-[160px] truncate rounded px-1.5 py-0.5 transition-colors"
+            />
+          ) : (
+            <button
+              type="button"
+              onClick={startRename}
+              title="Click to rename project"
+              className="group/title flex items-center gap-1 text-[13px] font-medium text-editor-text truncate rounded px-1.5 py-0.5 hover:bg-editor-hover transition-colors min-w-0"
+            >
+              <span className="truncate max-w-[110px] md:max-w-[200px]">
+                {projectName || "Untitled"}
+              </span>
+              <Pencil className="size-3 text-editor-text-faint opacity-0 group-hover/title:opacity-100 transition-opacity shrink-0" />
+            </button>
+          )}
         </div>
 
         {!isMobile && (
@@ -178,10 +239,15 @@ export function TopToolbar({
 
             <div className="w-px h-4 bg-editor-border" />
 
-            <button className="flex items-center gap-1.5 text-[11px] text-editor-text-muted hover:text-editor-text px-2 py-1.5 rounded-md hover:bg-editor-hover transition-colors">
+            <a
+              href={`/user/${projectId}/preview`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-[11px] text-editor-text-muted hover:text-editor-text px-2 py-1.5 rounded-md hover:bg-editor-hover transition-colors"
+            >
               <Eye className="w-3.5 h-3.5" />
               <span>Preview</span>
-            </button>
+            </a>
           </>
         )}
 
@@ -229,5 +295,6 @@ export function TopToolbar({
         )}
       </div>
     </header>
+    </>
   );
 }

@@ -1,33 +1,62 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
+import { useRouter } from "next/navigation";
+import { useState, useRef, useLayoutEffect } from "react";
+import { motion } from "motion/react";
 import {
   Plus,
   Globe,
   Eye,
   Trash2,
-  MoreHorizontal,
   PenTool,
   Search,
-  Filter,
+  Layout,
+  ArrowUpRight,
+  Calendar,
+  Layers,
 } from "lucide-react";
 import {
   useGetProjectsQuery,
   useDeleteProjectMutation,
+  type Project,
 } from "@/lib/redux/api/projectsApi";
+import { PortfolioPreview } from "@/components/editor/PortfolioCanvas";
+import { DeleteProjectModal } from "@/components/projects/DeleteProjectModal";
+
+const PREVIEW_W = 1000;
+const PREVIEW_H = 620;
+
+function useThumbScale(ref: React.RefObject<HTMLDivElement | null>) {
+  const [scale, setScale] = useState(0.3);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => setScale(el.clientWidth / PREVIEW_W));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return scale;
+}
 
 export default function ProjectsPage() {
   const { data: projects = [], isLoading } = useGetProjectsQuery();
-  const [deleteProject] = useDeleteProjectMutation();
-  const [showMenu, setShowMenu] = useState<string | null>(null);
+  const [deleteProject, { isLoading: isDeleting }] = useDeleteProjectMutation();
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
 
-  const handleDelete = (id: string) => {
-    if (!confirm("Are you sure you want to delete this project?")) return;
-    deleteProject(id);
-    setShowMenu(null);
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    try {
+      await deleteProject(deleteTarget.id).unwrap();
+      setDeleteTarget(null);
+    } catch {
+      // keep modal open so the user can retry
+    }
   };
 
   const filtered = projects.filter(
@@ -47,19 +76,23 @@ export default function ProjectsPage() {
       >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.03em]">Projects</h1>
-            <p className="mt-1 text-[13px] text-ink-mute">All your portfolios in one place.</p>
+            <h1 className="text-[24px] sm:text-[28px] font-semibold tracking-[-0.03em]">
+              Projects
+            </h1>
+            <p className="mt-1 text-[13px] text-ink-mute">
+              All your portfolios in one place.
+            </p>
           </div>
-          <Link
-            href="/editor"
-            className="flex items-center gap-2 rounded-lg gradient-accent px-4 py-2.5 text-[12px] font-medium text-on-primary transition-all hover:opacity-90 hover:scale-[1.02] self-start"
+          <button
+            onClick={() => router.push("/user/projects/new")}
+            className="flex items-center gap-2 rounded-lg gradient-accent px-4 py-2.5 text-[12px] font-medium text-on-primary transition-all hover:opacity-90 hover:scale-[1.02] self-start shadow-lg shadow-primary/20"
           >
             <Plus className="size-3.5" />
             New Project
-          </Link>
+          </button>
         </div>
 
-        {/* Search & Filter */}
+        {/* Search */}
         <div className="mt-4 flex items-center gap-3">
           <div className="relative flex-1 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-3.5 text-ink-faint" />
@@ -71,18 +104,20 @@ export default function ProjectsPage() {
               className="w-full rounded-lg border border-white/[0.08] bg-white/[0.03] pl-9 pr-3 py-2 text-[12px] text-ink placeholder:text-ink-faint outline-none transition-all focus:border-primary/40 focus:bg-white/[0.06]"
             />
           </div>
-          <button className="flex items-center gap-2 rounded-lg border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-[12px] text-ink-faint transition-all hover:border-white/[0.12] hover:bg-white/[0.06]">
-            <Filter className="size-3.5" />
-            Filter
-          </button>
+          <span className="text-[11px] text-ink-faint">
+            {filtered.length} {filtered.length === 1 ? "project" : "projects"}
+          </span>
         </div>
       </motion.div>
 
       {/* Content */}
       {isLoading ? (
-        <div className="space-y-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-xl bg-white/[0.03]" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="h-60 animate-pulse rounded-2xl bg-white/[0.03]"
+            />
           ))}
         </div>
       ) : filtered.length === 0 ? (
@@ -91,21 +126,23 @@ export default function ProjectsPage() {
           animate={{ opacity: 1, y: 0 }}
           className="flex flex-col items-center justify-center glass rounded-2xl py-20"
         >
-          <PenTool className="mb-3 size-8 text-ink-faint" />
+          <Layout className="mb-3 size-8 text-ink-faint" />
           <p className="text-[13px] font-medium text-ink-mute">
             {searchQuery ? "No projects match your search" : "No projects yet"}
           </p>
           <p className="mt-1 text-[12px] text-ink-faint">
-            {searchQuery ? "Try a different search term" : "Create your first portfolio to get started."}
+            {searchQuery
+              ? "Try a different search term"
+              : "Create your first portfolio to get started."}
           </p>
           {!searchQuery && (
-            <Link
-              href="/editor"
+            <button
+              onClick={() => router.push("/user/projects/new")}
               className="mt-4 flex items-center gap-2 rounded-lg gradient-accent px-4 py-2 text-[12px] font-medium text-on-primary transition-all hover:opacity-90 hover:scale-[1.02]"
             >
               <Plus className="size-3.5" />
               New Project
-            </Link>
+            </button>
           )}
         </motion.div>
       ) : (
@@ -113,97 +150,167 @@ export default function ProjectsPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="space-y-2"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
         >
-          {/* Table Header */}
-          <div className="grid grid-cols-[1fr_100px_100px_80px_32px] sm:grid-cols-[1fr_120px_120px_100px_40px] gap-4 px-4 py-2 text-[10px] sm:text-[11px] font-medium text-ink-faint uppercase tracking-[0.12em]">
-            <span>Name</span>
-            <span className="hidden sm:block">Status</span>
-            <span className="hidden sm:block">Created</span>
-            <span>Updated</span>
-            <span />
-          </div>
-
           {filtered.map((project, i) => (
-            <motion.div
+            <ProjectCard
               key={project._id}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.2, delay: i * 0.03 }}
-              className="group grid grid-cols-[1fr_100px_100px_80px_32px] sm:grid-cols-[1fr_120px_120px_100px_40px] items-center gap-4 glass rounded-xl px-4 py-3 transition-all duration-200 hover:border-white/[0.12]"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <div className="flex size-8 items-center justify-center rounded-lg bg-white/[0.06] shrink-0">
-                  <Globe className="size-4 text-ink-faint" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-[13px] font-medium truncate">{project.name}</p>
-                  <p className="text-[11px] text-ink-faint truncate">{project.slug}</p>
-                </div>
-              </div>
-
-              <span
-                className={`hidden sm:inline-flex w-fit items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                  project.published
-                    ? "bg-primary/15 text-primary"
-                    : "bg-white/[0.06] text-ink-faint"
-                }`}
-              >
-                {project.published ? (
-                  <><Globe className="size-2.5" /> Published</>
-                ) : (
-                  <><Eye className="size-2.5" /> Draft</>
-                )}
-              </span>
-
-              <span className="hidden sm:block text-[11px] text-ink-faint">
-                {new Date(project.createdAt).toLocaleDateString()}
-              </span>
-
-              <span className="text-[10px] sm:text-[11px] text-ink-faint">
-                {new Date(project.updatedAt).toLocaleDateString()}
-              </span>
-
-              <div className="relative">
-                <button
-                  onClick={() => setShowMenu(showMenu === project._id ? null : project._id)}
-                  className="rounded-md p-1 text-ink-faint opacity-0 transition-all hover:bg-white/[0.06] hover:text-ink group-hover:opacity-100"
-                >
-                  <MoreHorizontal className="size-4" />
-                </button>
-
-                <AnimatePresence>
-                  {showMenu === project._id && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                      transition={{ duration: 0.12 }}
-                      className="absolute right-0 top-8 z-10 w-36 rounded-xl glass-strong border border-white/[0.08] shadow-2xl overflow-hidden"
-                    >
-                      <Link
-                        href={`/editor?id=${project._id}`}
-                        className="flex items-center gap-2 px-3 py-2.5 text-[12px] text-ink transition-colors hover:bg-white/[0.06]"
-                        onClick={() => setShowMenu(null)}
-                      >
-                        <PenTool className="size-3.5" />
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(project._id)}
-                        className="flex w-full items-center gap-2 px-3 py-2.5 text-[12px] text-red-400 transition-colors hover:bg-red-500/10"
-                      >
-                        <Trash2 className="size-3.5" />
-                        Delete
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            </motion.div>
+              project={project}
+              index={i}
+              onDelete={() =>
+                setDeleteTarget({ id: project._id, name: project.name })
+              }
+            />
           ))}
         </motion.div>
       )}
+
+      <DeleteProjectModal
+        open={Boolean(deleteTarget)}
+        projectName={deleteTarget?.name ?? ""}
+        deleting={isDeleting}
+        onClose={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+        onConfirm={handleDelete}
+      />
     </div>
+  );
+}
+
+function ProjectCard({
+  project,
+  index,
+  onDelete,
+}: {
+  project: Project;
+  index: number;
+  onDelete: () => void;
+}) {
+  const router = useRouter();
+  const sectionCount = project.sections?.length ?? 0;
+  const thumbRef = useRef<HTMLDivElement>(null);
+  const scale = useThumbScale(thumbRef);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: index * 0.04 }}
+      className="group relative flex flex-col rounded-2xl border border-white/[0.06] bg-white/[0.02] overflow-hidden transition-all duration-300 hover:border-white/[0.14] hover:bg-white/[0.04] hover:shadow-2xl hover:shadow-black/50 hover:-translate-y-1"
+    >
+      {/* Thumbnail — mini live preview of the site */}
+      <div
+        ref={thumbRef}
+        role="button"
+        tabIndex={0}
+        aria-label={`Open ${project.name}`}
+        onClick={() => router.push(`/user/projects/${project._id}`)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            router.push(`/user/projects/${project._id}`);
+          }
+        }}
+        className="relative w-full overflow-hidden bg-white text-left cursor-pointer"
+      >
+        <div className="w-full" style={{ height: Math.max(PREVIEW_H * scale, 120) }} />
+        <div
+          className="pointer-events-none absolute left-0 top-0 origin-top-left"
+          style={{
+            width: PREVIEW_W,
+            height: PREVIEW_H,
+            transform: `scale(${scale})`,
+          }}
+        >
+          <PortfolioPreview
+            sections={project.sections ?? []}
+            deviceMode="desktop"
+          />
+        </div>
+
+        {/* Hover overlay */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/50 via-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-center justify-between p-3 opacity-0 translate-y-2 transition-all duration-300 group-hover:opacity-100 group-hover:translate-y-0">
+          <span className="inline-flex items-center gap-1 rounded-md bg-white/15 px-2 py-1 text-[10px] font-medium text-white backdrop-blur-sm">
+            <ArrowUpRight className="size-2.5" /> Open project
+          </span>
+          <span className="inline-flex items-center gap-1 rounded-md bg-black/40 px-2 py-1 text-[10px] font-medium text-white/80 backdrop-blur-sm">
+            <Eye className="size-2.5" /> Preview
+          </span>
+        </div>
+
+        {/* Status badge */}
+        <span
+          className={`pointer-events-none absolute left-3 top-3 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9.5px] font-medium backdrop-blur-sm ${
+            project.published
+              ? "bg-emerald-500/20 text-emerald-300"
+              : "bg-black/40 text-white/70"
+          }`}
+        >
+          {project.published ? (
+            <>
+              <Globe className="size-2.5" /> Published
+            </>
+          ) : (
+            <>
+              <Eye className="size-2.5" /> Draft
+            </>
+          )}
+        </span>
+      </div>
+
+      {/* Body */}
+      <div className="flex flex-1 flex-col px-3.5 py-3">
+        <button
+          onClick={() => router.push(`/user/projects/${project._id}`)}
+          className="block w-full truncate text-left text-[13px] font-medium text-ink transition-colors hover:text-primary"
+        >
+          {project.name}
+        </button>
+        <p className="mt-0.5 truncate text-[10.5px] text-ink-faint">
+          {project.slug}
+        </p>
+
+        {/* Meta + actions */}
+        <div className="mt-3 flex items-center justify-between border-t border-white/[0.05] pt-2.5">
+          <div className="flex items-center gap-3 text-[10.5px] text-ink-faint">
+            <span className="flex items-center gap-1">
+              <Calendar className="size-2.5" />
+              {new Date(project.updatedAt).toLocaleDateString()}
+            </span>
+            <span className="flex items-center gap-1">
+              <Layers className="size-2.5" />
+              {sectionCount} {sectionCount === 1 ? "section" : "sections"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            <Link
+              href={`/user/${project._id}/editor`}
+              title="Edit"
+              className="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-white/[0.08] hover:text-primary"
+            >
+              <PenTool className="size-3.5" />
+            </Link>
+            <Link
+              href={`/user/${project._id}/preview`}
+              target="_blank"
+              title="Preview"
+              className="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-white/[0.08] hover:text-primary"
+            >
+              <Eye className="size-3.5" />
+            </Link>
+            <button
+              onClick={onDelete}
+              title="Delete"
+              className="rounded-md p-1.5 text-ink-faint transition-colors hover:bg-red-500/10 hover:text-red-400"
+            >
+              <Trash2 className="size-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
   );
 }

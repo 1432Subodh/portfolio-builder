@@ -1,11 +1,11 @@
 "use client";
 
-import { useSession } from "next-auth/react";
+import { useGetSessionQuery } from "@/lib/redux/api/authApi";
 import { motion } from "motion/react";
 import { User, Mail, Calendar, Shield, CreditCard, Bell } from "lucide-react";
 
 export default function SettingsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useGetSessionQuery();
 
   const initials = session?.user?.name
     ?.split(" ")

@@ -5,6 +5,8 @@ export type SidebarTab = "components" | "layers";
 export type RightPanelTab = "content" | "design" | "layout" | "responsive" | "animation";
 export type GridMode = "off" | "small" | "large" | "columns";
 
+import type { Project } from "@/lib/redux/api/projectsApi";
+
 export interface EditorSection {
   id: string;
   name: string;
@@ -48,6 +50,7 @@ export interface EditorState {
 }
 
 export type EditorAction =
+  | { type: "LOAD_PROJECT"; project: Pick<Project, "sections"> }
   | { type: "SELECT_SECTION"; sectionId: string | null }
   | { type: "HOVER_SECTION"; sectionId: string | null }
   | { type: "SET_ZOOM"; zoom: number }

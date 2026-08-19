@@ -87,12 +87,56 @@ function asLinks(value: unknown, fallback: NavbarLink[]) {
     : fallback;
 }
 
+function EditableText({
+  value,
+  path,
+  onChange,
+  className,
+  style,
+}: {
+  value: string;
+  path: string[];
+  onChange?: (path: string[], value: string) => void;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  return (
+    <span
+      contentEditable={Boolean(onChange)}
+      suppressContentEditableWarning
+      tabIndex={onChange ? 0 : undefined}
+      className={className}
+      style={style}
+      onClick={(e) => {
+        if (onChange) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+      onKeyDown={(e) => {
+        if (onChange && e.key === "Enter") {
+          e.preventDefault();
+          e.currentTarget.blur();
+        }
+      }}
+      onBlur={(e) => {
+        const next = e.currentTarget.textContent ?? "";
+        if (onChange && next !== value) onChange(path, next);
+      }}
+    >
+      {value}
+    </span>
+  );
+}
+
 function NavbarMinimal({
   content = {},
   theme = {},
+  onContentChange,
 }: {
   content?: Record<string, unknown>;
   theme?: Record<string, unknown>;
+  onContentChange?: (path: string[], value: unknown) => void;
 }) {
   const navbarContent = content as NavbarContent;
   const navbarTheme = theme as NavbarTheme;
@@ -138,7 +182,12 @@ function NavbarMinimal({
           className="text-lg font-semibold tracking-[-0.03em]"
           style={{ color: textColor }}
         >
-          {asString(logo.text ?? logo.label, "Portfolio")}
+          <EditableText
+            value={asString(logo.text ?? logo.label, "Portfolio")}
+            path={["logo", "text"]}
+            onChange={onContentChange}
+            className="outline-none focus:ring-1 focus:ring-current/30"
+          />
         </a>
 
         {/* Desktop Navigation */}
@@ -150,7 +199,12 @@ function NavbarMinimal({
               className="relative text-sm transition-colors duration-300 hover:opacity-100"
               style={{ color: mutedTextColor, fontWeight }}
             >
-              {asString(link.label, "Link")}
+              <EditableText
+                value={asString(link.label, "Link")}
+                path={["links", String(index), "label"]}
+                onChange={onContentChange}
+                className="outline-none focus:ring-1 focus:ring-current/30"
+              />
             </a>
           ))}
         </div>
@@ -161,7 +215,12 @@ function NavbarMinimal({
           className="group hidden items-center gap-2 rounded-full bg-black px-5 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:gap-3 md:inline-flex"
           style={{ backgroundColor: accentColor }}
         >
-          {asString(cta.label, "Let's talk")}
+          <EditableText
+            value={asString(cta.label, "Let's talk")}
+            path={["cta", "label"]}
+            onChange={onContentChange}
+            className="outline-none focus:ring-1 focus:ring-white/50"
+          />
 
           <ArrowUpRight
             size={15}

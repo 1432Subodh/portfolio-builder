@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { signOut } from "next-auth/react";
-import { useSession } from "next-auth/react";
+import { useGetSessionQuery, authApi } from "@/lib/redux/api/authApi";
+import { useDispatch } from "react-redux";
 import {
   Plus,
   ChevronLeft,
@@ -23,12 +24,25 @@ import { useTheme } from "@/components/site/ThemeProvider";
 
 export default function UserLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const router = useRouter();
+  const { data: session } = useGetSessionQuery();
   const { theme, setTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(true);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showMobileNav, setShowMobileNav] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleCreate = () => {
+    setShowMobileNav(false);
+    router.push("/user/projects/new");
+  };
+
+  const dispatch = useDispatch();
+
+  const handleSignOut = () => {
+    dispatch(authApi.util.resetApiState());
+    void signOut({ callbackUrl: "/signin" });
+  };
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -79,13 +93,13 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
         {/* New Project */}
         <div className={`p-3 ${collapsed ? "flex justify-center px-0" : ""}`}>
-          <Link
-            href="/editor"
+          <button
+            onClick={handleCreate}
             className={`flex items-center justify-center rounded-lg gradient-accent text-[12px] font-medium text-on-primary transition-all hover:opacity-90 hover:scale-[1.02] ${collapsed ? "size-8 px-0" : "gap-2 px-3 py-2"}`}
           >
             <Plus className="size-3.5 shrink-0" />
             {!collapsed && "New Project"}
-          </Link>
+          </button>
         </div>
 
         {/* Main Nav */}
@@ -213,7 +227,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                         Account Settings
                       </Link>
                       <button
-                        onClick={() => signOut({ callbackUrl: "/signin" })}
+                        onClick={handleSignOut}
                         className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-[12px] text-red-400 transition-colors hover:bg-red-500/10"
                       >
                         <LogOut className="size-3.5" />
@@ -275,14 +289,13 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
 
               {/* Mobile New Project */}
               <div className="p-3">
-                <Link
-                  href="/editor"
-                  onClick={() => setShowMobileNav(false)}
+                <button
+                  onClick={handleCreate}
                   className="flex items-center justify-center gap-2 rounded-lg gradient-accent px-3 py-2.5 text-[12px] font-medium text-on-primary"
                 >
                   <Plus className="size-3.5" />
                   New Project
-                </Link>
+                </button>
               </div>
 
               {/* Mobile Nav Links */}
@@ -295,7 +308,7 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
               {/* Mobile Sign Out */}
               <div className="border-t border-white/[0.06] p-3">
                 <button
-                  onClick={() => signOut({ callbackUrl: "/signin" })}
+                  onClick={handleSignOut}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] font-medium text-red-400 transition-colors hover:bg-red-500/10"
                 >
                   <LogOut className="size-4" />

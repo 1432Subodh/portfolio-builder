@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useSession } from "next-auth/react";
+import { useGetSessionQuery } from "@/lib/redux/api/authApi";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus,
@@ -46,7 +46,7 @@ const inputCls =
   "h-10 w-full rounded-lg border border-editor-border-strong bg-editor-panel pl-9 pr-3 text-[12.5px] text-editor-text placeholder:text-editor-text-ghost outline-none transition-colors focus:border-editor-text";
 
 export default function ManageAdminsPage() {
-  const { data: session } = useSession();
+  const { data: session } = useGetSessionQuery();
   const { data: admins = [], isLoading, error } = useGetAdminsQuery();
   const [createAdmin] = useCreateAdminMutation();
   const [updateAdmin] = useUpdateAdminMutation();

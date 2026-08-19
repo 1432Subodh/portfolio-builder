@@ -12,6 +12,7 @@ import type {
   EditorState,
   EditorSection,
 } from "./types";
+import type { Project } from "@/lib/redux/api/projectsApi";
 
 const defaultSections: EditorSection[] = [];
 
@@ -168,6 +169,15 @@ function editorReducer(state: EditorState, action: EditorAction): EditorState {
 
 function reduceEditorState(state: EditorState, action: EditorAction): EditorState {
   switch (action.type) {
+    case "LOAD_PROJECT":
+      return {
+        ...createInitialState(action.project),
+        zoom: state.zoom,
+        deviceMode: state.deviceMode,
+        sidebarTab: state.sidebarTab,
+        rightPanelTab: state.rightPanelTab,
+        rightPanelOpen: state.rightPanelOpen,
+      };
     case "SELECT_SECTION": {
       const section = state.sections.find((s) => s.id === action.sectionId);
       return {
@@ -361,8 +371,25 @@ interface EditorContextValue {
 
 const EditorContext = createContext<EditorContextValue | null>(null);
 
-export function EditorProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(editorReducer, initialState);
+function createInitialState(project?: Pick<Project, "sections"> | null): EditorState {
+  return {
+    ...initialState,
+    sections: (project?.sections ?? []).map((s) => ({
+      ...s,
+      visible: s.visible ?? true,
+      locked: s.locked ?? false,
+    })),
+  };
+}
+
+export function EditorProvider({
+  children,
+  project,
+}: {
+  children: ReactNode;
+  project?: Project | null;
+}) {
+  const [state, dispatch] = useReducer(editorReducer, project, createInitialState);
 
   return (
     <EditorContext.Provider value={{ state, dispatch }}>

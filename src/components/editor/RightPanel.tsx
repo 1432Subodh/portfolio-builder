@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useEditor } from "./editor-context";
 import type { RightPanelTab } from "./types";
 import {
@@ -22,8 +22,10 @@ import {
   RotateCcw,
   Undo2,
   Redo2,
+  RefreshCw,
 } from "lucide-react";
 import { Dropdown } from "@/components/ui/Dropdown";
+import { useGetProjectQuery } from "@/lib/redux/api/projectsApi";
 
 type ThemeTab = Exclude<RightPanelTab, "content">;
 
@@ -765,16 +767,34 @@ function LayoutPanel({
 export function RightPanel({
   isMobile,
   onClose,
+  projectId,
 }: {
   isMobile?: boolean;
   onClose?: () => void;
+  projectId?: string;
 }) {
   const { state, dispatch } = useEditor();
+  const { refetch, isFetching } = useGetProjectQuery(projectId ?? "__none__", {
+    skip: !projectId,
+  });
   const selectedSection = state.sections.find(
     (s) => s.id === state.selectedSectionId
   );
   const theme = isRecord(selectedSection?.theme) ? selectedSection.theme : {};
   const content = isRecord(selectedSection?.content) ? selectedSection.content : {};
+
+  const handleRefresh = useCallback(async () => {
+    if (!projectId) return;
+    try {
+      const result = await refetch();
+      if (result.data) {
+        dispatch({ type: "LOAD_PROJECT", project: result.data });
+        dispatch({ type: "SET_SAVE_STATUS", status: "saved" });
+      }
+    } catch {
+      // keep current state on fetch failure
+    }
+  }, [projectId, refetch, dispatch]);
 
   return (
     <aside className={`h-full flex flex-col border-l border-editor-border bg-editor-bg ${isMobile ? "w-72" : "w-full shrink-0"}`}>
@@ -809,6 +829,14 @@ export function RightPanel({
       {selectedSection ? (
         <div className="flex-1 overflow-y-auto overflow-x-hidden editor-scrollbar">
           <div className="flex items-center gap-0.5 px-3 py-1.5 border-b border-editor-border">
+            <button
+              onClick={handleRefresh}
+              disabled={isFetching || !projectId}
+              className="p-1 rounded text-editor-text-faint hover:text-editor-text hover:bg-editor-hover transition-colors disabled:cursor-not-allowed disabled:opacity-40"
+              title="Reload saved project data"
+            >
+              <RefreshCw className={`w-3 h-3 ${isFetching ? "animate-spin" : ""}`} />
+            </button>
             <button
               onClick={() => dispatch({ type: "UNDO" })}
               disabled={state.past.length === 0}

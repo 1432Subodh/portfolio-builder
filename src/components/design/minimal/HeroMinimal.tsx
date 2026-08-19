@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowUpRight } from "lucide-react";
 
 type HeroMinimalContent = {
+  id?:string;
   eyebrow?: string;
   headingLine1?: string;
   headingMuted?: string;
@@ -52,12 +53,58 @@ function asStringArray(value: unknown, fallback: string[]) {
     : fallback;
 }
 
+function EditableText({
+  value,
+  path,
+  onChange,
+  className,
+  style,
+  as: Tag = "span",
+}: {
+  value: string;
+  path: string[];
+  onChange?: (path: string[], value: string) => void;
+  className?: string;
+  style?: React.CSSProperties;
+  as?: "span" | "p";
+}) {
+  return (
+    <Tag
+      contentEditable={Boolean(onChange)}
+      suppressContentEditableWarning
+      tabIndex={onChange ? 0 : undefined}
+      className={className}
+      style={style}
+      onClick={(e) => {
+        if (onChange) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }}
+      onKeyDown={(e) => {
+        if (onChange && e.key === "Enter") {
+          e.preventDefault();
+          e.currentTarget.blur();
+        }
+      }}
+      onBlur={(e) => {
+        const next = e.currentTarget.textContent ?? "";
+        if (onChange && next !== value) onChange(path, next);
+      }}
+    >
+      {value}
+    </Tag>
+  );
+}
+
 function HeroMinimal({
   content = {},
   theme = {},
+  onContentChange,
 }: {
   content?: Record<string, unknown>;
   theme?: Record<string, unknown>;
+  onContentChange?: (path: string[], value: unknown) => void;
 }) {
   const heroContent = content as HeroMinimalContent;
   const heroTheme = theme as HeroMinimalTheme;
@@ -88,7 +135,8 @@ function HeroMinimal({
 
   return (
     <section
-      className="relative w-full overflow-hidden"
+      id={heroContent.id || undefined}
+      className="relative w-full overflow-hidden px-0"
       style={{
         minHeight,
         backgroundColor,
@@ -115,35 +163,52 @@ function HeroMinimal({
           {/* Eyebrow */}
           <div className="mb-8 flex items-center gap-3">
             <span className="h-px w-10" style={{ backgroundColor: accentColor }} />
-            <span
-              className="text-sm font-medium uppercase tracking-[0.2em]"
+            <EditableText
+              value={asString(heroContent.eyebrow, "Creative Developer")}
+              path={["eyebrow"]}
+              onChange={onContentChange}
+              className="text-sm font-medium uppercase tracking-[0.2em] outline-none focus:ring-1 focus:ring-current/30"
               style={{ color: mutedTextColor }}
-            >
-              {asString(heroContent.eyebrow, "Creative Developer")}
-            </span>
+            />
           </div>
 
           {/* Heading */}
           <h1 className="max-w-5xl text-5xl font-semibold leading-[0.95] tracking-[-0.04em] sm:text-7xl lg:text-8xl">
-            {asString(heroContent.headingLine1, "I build digital")}
+            <EditableText
+              value={asString(heroContent.headingLine1, "I build digital")}
+              path={["headingLine1"]}
+              onChange={onContentChange}
+              className="outline-none focus:ring-1 focus:ring-current/30"
+            />
             <br />
-            <span style={{ color: mutedTextColor }}>
-              {asString(heroContent.headingMuted, "experiences that")}
-            </span>
+            <EditableText
+              value={asString(heroContent.headingMuted, "experiences that")}
+              path={["headingMuted"]}
+              onChange={onContentChange}
+              className="outline-none focus:ring-1 focus:ring-current/30"
+              style={{ color: mutedTextColor }}
+            />
             <br />
-            <span>{asString(heroContent.headingLine3, "stand out.")}</span>
+            <EditableText
+              value={asString(heroContent.headingLine3, "stand out.")}
+              path={["headingLine3"]}
+              onChange={onContentChange}
+              className="outline-none focus:ring-1 focus:ring-current/30"
+            />
           </h1>
 
           {/* Description */}
-          <p
-            className="mt-8 max-w-xl text-base leading-7 sm:text-lg"
-            style={{ color: mutedTextColor }}
-          >
-            {asString(
+          <EditableText
+            as="p"
+            value={asString(
               heroContent.description,
               "I'm a designer and developer focused on creating thoughtful, high-performance digital experiences with clean interfaces and meaningful interactions."
             )}
-          </p>
+            path={["description"]}
+            onChange={onContentChange}
+            className="mt-8 max-w-xl text-base leading-7 sm:text-lg"
+            style={{ color: mutedTextColor }}
+          />
 
           {/* Actions */}
           <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -152,7 +217,12 @@ function HeroMinimal({
               className="group inline-flex items-center gap-3 rounded-full bg-black px-6 py-3.5 text-sm font-medium text-white transition-all duration-300 hover:gap-5"
               style={{ backgroundColor: accentColor }}
             >
-              {asString(heroContent.primaryCta, "View my work")}
+              <EditableText
+                value={asString(heroContent.primaryCta, "View my work")}
+                path={["primaryCta"]}
+                onChange={onContentChange}
+                className="outline-none focus:ring-1 focus:ring-white/50"
+              />
               <ArrowUpRight
                 size={17}
                 className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
@@ -164,7 +234,12 @@ function HeroMinimal({
               className="inline-flex items-center rounded-full border border-black/15 px-6 py-3.5 text-sm font-medium transition-colors duration-300 hover:border-black hover:bg-black hover:text-white"
               style={{ borderColor: `${accentColor}26` }}
             >
-              {asString(heroContent.secondaryCta, "Let's talk")}
+              <EditableText
+                value={asString(heroContent.secondaryCta, "Let's talk")}
+                path={["secondaryCta"]}
+                onChange={onContentChange}
+                className="outline-none focus:ring-1 focus:ring-current/30"
+              />
             </a>
           </div>
 
@@ -173,8 +248,14 @@ function HeroMinimal({
             className="mt-20 flex flex-wrap items-center gap-x-10 gap-y-4 border-t pt-6 text-xs uppercase tracking-[0.15em]"
             style={{ borderColor: `${accentColor}1a`, color: mutedTextColor }}
           >
-            {asStringArray(heroContent.meta, ["Based in India", "Available for work", "2026"]).map((item) => (
-              <span key={item}>{item}</span>
+            {asStringArray(heroContent.meta, ["Based in India", "Available for work", "2026"]).map((item, index) => (
+              <EditableText
+                key={`${item}-${index}`}
+                value={item}
+                path={["meta", String(index)]}
+                onChange={onContentChange}
+                className="outline-none focus:ring-1 focus:ring-current/30"
+              />
             ))}
           </div>
         </div>
@@ -184,7 +265,11 @@ function HeroMinimal({
           className="pointer-events-none absolute bottom-10 right-10 hidden text-[180px] font-semibold leading-none tracking-[-0.08em] opacity-[0.025] lg:block"
           style={{ color: accentColor }}
         >
-          {asString(heroContent.sectionNumber, "01")}
+          <EditableText
+            value={asString(heroContent.sectionNumber, "01")}
+            path={["sectionNumber"]}
+            onChange={onContentChange}
+          />
         </div>
       </div>
     </section>

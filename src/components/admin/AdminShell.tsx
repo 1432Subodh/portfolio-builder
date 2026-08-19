@@ -3,7 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useSession, signOut } from "next-auth/react";
+import { signOut } from "next-auth/react";
+import { useDispatch } from "react-redux";
+import { useGetSessionQuery, authApi } from "@/lib/redux/api/authApi";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Search,
@@ -25,7 +27,12 @@ import { useTheme } from "@/components/site/ThemeProvider";
 
 export default function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { data: session } = useSession();
+  const { data: session } = useGetSessionQuery();
+  const dispatch = useDispatch();
+  const handleSignOut = () => {
+    dispatch(authApi.util.resetApiState());
+    void signOut({ callbackUrl: "/admin/login" });
+  };
   const { theme, setTheme } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -267,7 +274,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
                         View Website
                       </Link>
                       <button
-                        onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                        onClick={handleSignOut}
                         className="flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-[12px] text-red-400 transition-colors hover:bg-red-500/10"
                       >
                         <LogOut className="size-3.5" />
@@ -353,7 +360,7 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
               </nav>
               <div className="border-t border-editor-border p-3">
                 <button
-                  onClick={() => signOut({ callbackUrl: "/admin/login" })}
+                  onClick={handleSignOut}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-[12px] font-medium text-red-400 transition-colors hover:bg-red-500/10"
                 >
                   <LogOut className="size-4" />

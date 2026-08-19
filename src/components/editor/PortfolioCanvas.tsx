@@ -115,7 +115,7 @@ function Section({
   const isVisible =
     section.visible !== false && !hiddenOn.includes(state.deviceMode);
 
-  const handleClick = useCallback(
+  const handleMouseDown = useCallback(
     (e: React.MouseEvent) => {
       e.stopPropagation();
       dispatch({ type: "SELECT_SECTION", sectionId: section.id });
@@ -149,32 +149,36 @@ function Section({
 
   return (
     <div
-      onClick={handleClick}
+      onMouseDown={handleMouseDown}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onContextMenu={handleContextMenu}
-      className={`relative transition-all duration-100 ${
-        isSelected
-          ? "ring-2 ring-white ring-offset-2 ring-offset-background"
-          : isHovered
-            ? "ring-1 ring-neutral-400 ring-offset-1 ring-offset-background"
-            : ""
-      }`}
+      className="relative transition-all duration-100"
       data-section={section.id}
       style={sectionStyle(section, state.deviceMode)}
     >
       {(isSelected || isHovered) && (
-        <div className="absolute -top-6 left-0 z-30 flex items-center gap-1">
-          <span
-            className={`text-[9px] font-medium px-1.5 py-0.5 rounded-sm ${
-              isSelected
-                ? "bg-white text-black"
-                : "bg-neutral-800 text-neutral-300 border border-neutral-600"
+        <>
+          <div
+            className={`pointer-events-none absolute inset-0 z-20 transition-all duration-100 ${
+              isSelected ? "border-2" : "border"
             }`}
-          >
-            {section.name}
-          </span>
-        </div>
+            style={{
+              borderColor: isSelected ? "#3b82f6" : "#9ca3af",
+            }}
+          />
+          <div className="pointer-events-none absolute -top-6 left-0 z-30 flex items-center gap-1">
+            <span
+              className={`text-[9px] font-medium px-1.5 py-0.5 rounded-sm ${
+                isSelected
+                  ? "bg-[#3b82f6] text-white"
+                  : "bg-neutral-800 text-neutral-300 border border-neutral-600"
+              }`}
+            >
+              {section.name}
+            </span>
+          </div>
+        </>
       )}
       {children}
     </div>
@@ -190,6 +194,7 @@ function MissingComponent({ slug }: { slug?: string }) {
 }
 
 function RenderedSection({ section }: { section: EditorSection }) {
+  const { dispatch } = useEditor();
   const key = section.componentSlug;
   const Component = key
     ? componentRegistry[key as keyof typeof componentRegistry]
@@ -198,11 +203,78 @@ function RenderedSection({ section }: { section: EditorSection }) {
   return (
     <Section section={section}>
       {Component ? (
-        <Component content={section.content} theme={section.theme} />
+        <Component
+          content={section.content}
+          theme={section.theme}
+          onContentChange={(path: string[], value: unknown) =>
+            dispatch({
+              type: "UPDATE_SECTION_CONTENT_PATH",
+              sectionId: section.id,
+              path,
+              value,
+            })
+          }
+        />
       ) : (
         <MissingComponent slug={key} />
       )}
     </Section>
+  );
+}
+
+function PreviewSection({
+  section,
+  deviceMode,
+}: {
+  section: EditorSection;
+  deviceMode: DeviceMode;
+}) {
+  const key = section.componentSlug;
+  const Component = key
+    ? componentRegistry[key as keyof typeof componentRegistry]
+    : null;
+  const theme = asRecord(section.theme);
+  const responsive = asRecord(theme.responsive);
+  const hiddenOn = asStringArray(responsive.hiddenOn);
+  const isVisible =
+    section.visible !== false && !hiddenOn.includes(deviceMode);
+
+  if (!isVisible) return null;
+
+  return (
+    <div style={sectionStyle(section, deviceMode)}>
+      {Component ? (
+        <Component content={section.content} theme={section.theme} />
+      ) : (
+        <MissingComponent slug={key} />
+      )}
+    </div>
+  );
+}
+
+export function PortfolioPreview({
+  sections,
+  deviceMode,
+}: {
+  sections: EditorSection[];
+  deviceMode: DeviceMode;
+}) {
+  return (
+    <div className="min-h-screen bg-background text-ink">
+      {sections.length === 0 ? (
+        <div className="flex min-h-[520px] items-center justify-center bg-white px-6 text-center text-sm text-neutral-500">
+          No components yet. Go back to the editor to add sections.
+        </div>
+      ) : (
+        sections.map((section) => (
+          <PreviewSection
+            key={section.id}
+            section={section}
+            deviceMode={deviceMode}
+          />
+        ))
+      )}
+    </div>
   );
 }
 

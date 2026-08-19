@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useGetSessionQuery } from "@/lib/redux/api/authApi";
 import { useState } from "react";
 import { motion } from "motion/react";
 import {
@@ -34,8 +35,9 @@ import {
 } from "@/lib/redux/api/projectsApi";
 
 export default function UserDashboard() {
-  const { data: session } = useSession();
+  const { data: session } = useGetSessionQuery();
   const { data: projects = [], isLoading } = useGetProjectsQuery();
+  const router = useRouter();
   const [analyticsView, setAnalyticsView] = useState<"views" | "visitors">("views");
 
   const userName = session?.user?.name?.split(" ")[0] || "there";
@@ -293,13 +295,13 @@ export default function UserDashboard() {
             <FolderOpen className="mb-3 size-8 text-ink-faint" />
             <p className="text-[13px] font-medium text-ink-mute">No projects yet</p>
             <p className="mt-1 text-[12px] text-ink-faint">Create your first portfolio to get started.</p>
-            <Link
-              href="/editor"
+            <button
+              onClick={() => router.push("/user/projects/new")}
               className="mt-4 flex items-center gap-2 rounded-lg gradient-accent px-4 py-2 text-[12px] font-medium text-on-primary transition-all hover:opacity-90 hover:scale-[1.02]"
             >
               <Plus className="size-3.5" />
               New Project
-            </Link>
+            </button>
           </div>
         ) : (
           <div className="masonry-grid">
@@ -474,7 +476,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
       className="masonry-item"
     >
       <Link
-        href={`/editor?id=${project._id}`}
+        href={`/user/${project._id}/editor`}
         className="group block glass rounded-2xl overflow-hidden transition-all duration-300 hover:border-white/[0.12] hover:scale-[1.01]"
       >
         {/* Thumbnail area */}

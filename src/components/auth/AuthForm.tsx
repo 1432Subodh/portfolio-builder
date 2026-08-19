@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "motion/react";
 import { signIn } from "next-auth/react";
+import { useDispatch } from "react-redux";
+import { authApi } from "@/lib/redux/api/authApi";
 import { Eye, EyeOff, Mail, Lock, User, Loader2 } from "lucide-react";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -14,6 +16,7 @@ type FieldName = "name" | "email" | "password";
 export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
   const isSignin = mode === "signin";
   const router = useRouter();
+  const dispatch = useDispatch();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -81,6 +84,7 @@ export default function AuthForm({ mode }: { mode: "signin" | "signup" }) {
           router.push("/signin");
         }
       } else {
+        dispatch(authApi.util.resetApiState());
         router.push("/user");
         router.refresh();
       }
